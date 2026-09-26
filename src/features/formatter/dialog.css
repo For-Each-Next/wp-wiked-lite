@@ -1,0 +1,193 @@
+/* Codex supplies controls, focus states, colors, and the responsive dialog shell. */
+.wiked-lite-dialog {
+    max-width: 50rem;
+}
+
+.wiked-lite-dialog .wiked-lite-dialog__controls {
+    border: 0;
+    padding: 0;
+    margin: 0;
+    min-width: 0;
+}
+
+.wiked-lite-dialog .wiked-lite-dialog__sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+}
+
+.wiked-lite-dialog .cdx-tabs > .cdx-tabs__header {
+    position: sticky;
+    inset-block-start: 0;
+    z-index: 1;
+}
+
+.wiked-lite-dialog .cdx-tabs__content {
+    padding-block-start: var(--spacing-150, 24px);
+}
+
+.wiked-lite-dialog .cdx-dialog__body {
+    padding-block-start: 0;
+    scroll-padding-block-start: 4rem;
+}
+
+.wiked-lite-dialog .wiked-lite-dialog__section + .wiked-lite-dialog__section,
+.wiked-lite-dialog .wiked-lite-dialog__intro + .wiked-lite-dialog__section {
+    margin-top: var(--spacing-150, 24px);
+}
+
+.wiked-lite-dialog .wiked-lite-dialog__heading {
+    border: 0;
+    padding: 0;
+    margin: 0 0 var(--spacing-25, 4px);
+    font: inherit;
+    font-weight: var(--font-weight-bold, 700);
+}
+
+.wiked-lite-dialog .wiked-lite-dialog__intro {
+    margin: 0;
+    color: var(--color-subtle, #54595d);
+    line-height: var(--line-height-medium, 1.6);
+}
+
+.wiked-lite-dialog .cdx-label__description,
+.wiked-lite-dialog .wiked-lite-dialog__intro {
+    font-size: 86%;
+}
+
+.wiked-lite-dialog .wiked-lite-dialog__dependent {
+    margin-block-start: var(--spacing-75, 12px);
+    margin-inline-start: var(--spacing-100, 16px);
+}
+
+.wiked-lite-dialog .wiked-lite-dialog__indentation-width {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--spacing-50, 8px);
+    margin-block-end: var(--spacing-50, 8px);
+}
+
+.wiked-lite-dialog .wiked-lite-dialog__indentation-width > .cdx-label {
+    padding: 0;
+}
+
+.wiked-lite-dialog
+    .wiked-lite-dialog__indentation-width
+    .cdx-label__label__text {
+    font-weight: normal;
+}
+
+.wiked-lite-dialog .wiked-lite-dialog__indentation-width .cdx-text-input {
+    flex: 0 0 6rem;
+    width: 6rem;
+    min-width: 0;
+}
+
+.wiked-lite-dialog .wiked-lite-dialog__columns {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--spacing-150, 24px);
+}
+
+/* Field's adjacent-sibling spacing is supplied by the grid here. */
+.wiked-lite-dialog .wiked-lite-dialog__columns > .cdx-field {
+    margin: 0;
+    min-width: 0;
+}
+
+.wiked-lite-dialog .wiked-lite-dialog__example {
+    margin-inline: 0;
+    margin-block-end: 0;
+}
+
+.wiked-lite-dialog .wiked-lite-dialog__example figcaption {
+    margin-block-end: var(--spacing-50, 8px);
+}
+
+.wiked-lite-dialog .wiked-lite-dialog__example pre {
+    padding: var(--spacing-75, 12px);
+    margin: 0;
+    border: 1px solid var(--border-color-muted, #dadde3);
+    border-radius: var(--border-radius-base, 2px);
+    color: var(--color-base, #202122);
+    background: var(--background-color-interactive-subtle, #f8f9fa);
+    font-size: var(--font-size-small, 0.875rem);
+    line-height: var(--line-height-small, 1.5714286);
+    overflow-x: auto;
+    tab-size: 4;
+}
+
+.wiked-lite-dialog .wiked-lite-dialog__example code {
+    border: 0;
+    padding: 0;
+    color: inherit;
+    background: none;
+    font: inherit;
+    font-family: var(--font-family-monospace, monospace);
+}
+
+.wiked-lite-dialog .wiked-lite-dialog__example pre:focus-visible {
+    outline: 2px solid var(--color-progressive, #36c);
+    outline-offset: 2px;
+}
+
+.wiked-lite-dialog .wiked-lite-dialog__feedback {
+    display: grid;
+    gap: var(--spacing-50, 8px);
+    margin-block-end: var(--spacing-100, 16px);
+    text-align: start;
+}
+
+.wiked-lite-dialog .wiked-lite-dialog__footer-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-75, 12px);
+}
+
+.wiked-lite-dialog .wiked-lite-dialog__actions {
+    display: flex;
+    flex-direction: row-reverse;
+    gap: var(--spacing-75, 12px);
+}
+
+.wiked-lite-dialog .wiked-lite-dialog__progress {
+    display: grid;
+    gap: var(--spacing-50, 8px);
+}
+
+@media (max-width: 639px) {
+    .wiked-lite-dialog .wiked-lite-dialog__columns {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .wiked-lite-dialog .wiked-lite-dialog__footer-bar {
+        display: grid;
+        grid-template-columns: auto 1fr;
+    }
+
+    .wiked-lite-dialog .wiked-lite-dialog__actions {
+        display: contents;
+    }
+
+    .wiked-lite-dialog .wiked-lite-dialog__primary {
+        grid-column: 1 / -1;
+        grid-row: 1;
+        max-width: none;
+    }
+
+    .wiked-lite-dialog .wiked-lite-dialog__more {
+        grid-column: 1;
+        grid-row: 2;
+    }
+
+    .wiked-lite-dialog .wiked-lite-dialog__cancel {
+        grid-column: 2;
+        grid-row: 2;
+        justify-self: end;
+    }
+}

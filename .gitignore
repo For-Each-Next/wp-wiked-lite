@@ -1,0 +1,13 @@
+# Local OS and editor files
+.DS_Store
+.idea/
+.vscode/
+
+# Dependencies and build output
+*.tsbuildinfo
+dist/
+node_modules/
+
+# Caches and test reports
+.cache/
+coverage/

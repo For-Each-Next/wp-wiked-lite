@@ -1,0 +1,660 @@
+.wiked-lite-frame,
+.wiked-lite-editor {
+    --wiked-lite-background: rgb(255, 255, 255);
+    --wiked-lite-caret: rgb(32, 33, 34);
+    --wiked-lite-foreground: rgb(32, 33, 34);
+    --wiked-lite-missing-link: rgb(186, 0, 0);
+}
+
+.wiked-lite-frame {
+    display: block;
+    box-sizing: border-box;
+    width: 100%;
+    min-height: 16rem;
+    overflow: hidden;
+    color-scheme: light dark;
+    background: var(--wiked-lite-background);
+    border: var(--border-width-base, 1px) var(--border-style-base, solid)
+        var(--border-color-base, rgb(162, 169, 177));
+    border-radius: var(--border-radius-base, 2px);
+    resize: vertical;
+}
+
+.wiked-lite-frame:not([data-wiked-ready="true"]) {
+    visibility: hidden;
+}
+
+.wiked-lite-frame:focus {
+    outline: var(--border-width-thick, 2px) var(--border-style-base, solid)
+        var(--border-color-progressive--focus, rgb(51, 102, 204));
+    outline-offset: -2px;
+}
+
+.wiked-lite-frame-document {
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+    color-scheme: light dark;
+    background: var(--wiked-lite-background, rgb(255, 255, 255));
+}
+
+.wiked-lite-editor {
+    position: relative;
+    box-sizing: border-box;
+    width: 100%;
+    height: 100vh;
+    min-height: 100%;
+    padding: var(--spacing-75, 12px);
+    overflow: auto;
+    color: var(--wiked-lite-foreground);
+    color-scheme: light dark;
+    caret-color: var(--wiked-lite-caret);
+    font-family: monospace;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    background: var(--wiked-lite-background);
+    border: 0;
+    outline: 0;
+    tab-size: 4;
+}
+
+.wiked-lite-frame-overlay {
+    position: fixed;
+    z-index: 800;
+    inset: 0;
+    overflow: visible;
+    pointer-events: none;
+}
+
+/* `inert` does not consistently exclude controls from Find-in-page. */
+.wiked-lite-native {
+    display: none !important;
+}
+
+.wiked-lite-token--comment {
+    color: rgb(0, 0, 0) !important;
+    font-style: normal !important;
+    font-weight: normal !important;
+    text-decoration: none !important;
+    background: rgb(255, 240, 208) !important;
+}
+
+.wiked-lite-token--html-content-0,
+.wiked-lite-token--html-content-1,
+.wiked-lite-token--html-content-2,
+.wiked-lite-token--html-content-3,
+.wiked-lite-token--html-content-4 {
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+}
+
+.wiked-lite-token--html-content-0 {
+    background: rgb(246, 246, 246);
+    background: color-mix(
+        in srgb,
+        var(--wiked-lite-background) 96%,
+        var(--wiked-lite-foreground)
+    );
+}
+
+.wiked-lite-token--html-content-1 {
+    background: rgb(228, 228, 228);
+    background: color-mix(
+        in srgb,
+        var(--wiked-lite-background) 88%,
+        var(--wiked-lite-foreground)
+    );
+}
+
+.wiked-lite-token--html-content-2 {
+    background: rgb(218, 218, 218);
+    background: color-mix(
+        in srgb,
+        var(--wiked-lite-background) 83.5%,
+        var(--wiked-lite-foreground)
+    );
+}
+
+.wiked-lite-token--html-content-3,
+.wiked-lite-token--html-content-4 {
+    background: rgb(208, 208, 208);
+    background: color-mix(
+        in srgb,
+        var(--wiked-lite-background) 79%,
+        var(--wiked-lite-foreground)
+    );
+}
+
+.wiked-lite-token--html-tag {
+    color: var(--wiked-lite-foreground);
+    background: rgb(232, 232, 232);
+}
+
+.wiked-lite-token--pre {
+    color: rgb(32, 33, 34);
+    font-style: normal;
+    font-weight: normal;
+    background: transparent;
+}
+
+.wiked-lite-token--block-literal {
+    color: rgb(32, 33, 34);
+    font-style: normal;
+    font-weight: normal;
+    background: rgb(246, 246, 246) !important;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+}
+
+.wiked-lite-token--math {
+    color: rgb(32, 33, 34);
+    font-style: normal;
+    font-weight: normal;
+    background: rgb(232, 240, 255) !important;
+}
+
+.wiked-lite-token--score {
+    color: rgb(32, 33, 34);
+    font-style: normal;
+    font-weight: normal;
+    background: rgb(255, 248, 224) !important;
+}
+
+.wiked-lite-token--nowiki {
+    color: rgb(32, 33, 34);
+    font-style: normal;
+    font-weight: normal;
+    background: rgb(248, 232, 232) !important;
+}
+
+.wiked-lite-token--heading {
+    color: rgb(0, 0, 0);
+    font-weight: bold;
+}
+
+.wiked-lite-token--heading-2 {
+    font-size: 1.55em;
+    font-weight: normal;
+}
+
+.wiked-lite-token--heading-3 {
+    font-size: 1.32em;
+    font-weight: normal;
+}
+
+.wiked-lite-token--heading-2.wiked-lite-token--heading-text {
+    text-decoration-line: underline;
+    text-decoration-style: double;
+    text-underline-offset: 0.2em;
+}
+
+.wiked-lite-token--heading-3.wiked-lite-token--heading-text {
+    text-decoration-line: underline;
+    text-decoration-style: solid;
+    text-underline-offset: 0.2em;
+}
+
+.wiked-lite-token--heading-4 {
+    font-size: 1.1em;
+    font-weight: normal;
+}
+
+.wiked-lite-token--table {
+    color: rgb(119, 119, 119);
+}
+
+.wiked-lite-token--link,
+.wiked-lite-token--category,
+.wiked-lite-token--link-helper {
+    color: rgb(0, 0, 170);
+}
+
+.wiked-lite-token--link-text,
+.wiked-lite-token--link-helper {
+    font-weight: 600;
+}
+
+.wiked-lite-token--foreign-title {
+    color: var(--wiked-lite-foreground);
+    font-weight: normal;
+}
+
+.wiked-lite-token--wiki-markup,
+.wiked-lite-token--template-delimiter {
+    color: rgb(119, 119, 119);
+}
+
+.wiked-lite-token--file {
+    color: rgb(0, 0, 238);
+}
+
+.wiked-lite-token--file,
+.wiked-lite-token--file-link,
+.wiked-lite-token--image-template {
+    background: rgba(199, 255, 149, 0.75) !important;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+}
+
+.wiked-lite-token--url {
+    color: rgb(0, 0, 238);
+}
+
+.wiked-lite-token--missing {
+    color: var(--wiked-lite-missing-link, rgb(186, 0, 0)) !important;
+}
+
+.wiked-lite-token--unchecked {
+    color: var(--wiked-lite-foreground, rgb(32, 33, 34)) !important;
+}
+
+.wiked-lite-token--page-missing {
+    color: var(--wiked-lite-missing-link, rgb(186, 0, 0)) !important;
+}
+
+.wiked-lite-token--reference {
+    font-style: normal;
+    background: rgb(243, 225, 247) !important;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+}
+
+.wiked-lite-token--footnote {
+    background: rgb(230, 242, 255) !important;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+}
+
+.wiked-lite-token--footnote.wiked-lite-token--reference {
+    background: rgb(243, 225, 247) !important;
+}
+
+/* Alternate backgrounds preserve the contrast of every syntax text color. */
+.wiked-lite-token--footnote.wiked-lite-token--reference-alternate {
+    background: rgb(211, 230, 250) !important;
+}
+
+.wiked-lite-token--reference.wiked-lite-token--reference-alternate {
+    background: rgb(231, 207, 239) !important;
+}
+
+/* Flat highlight spans keep overlapping note syntax at one small level. */
+.wiked-lite-editor--small-reference-text .wiked-lite-token--reference,
+.wiked-lite-editor--small-reference-text .wiked-lite-token--footnote,
+.wiked-lite-editor--small-reference-text
+    .wiked-lite-token--small-reference-comment {
+    font-size: 0.86em;
+}
+
+.wiked-lite-token--template-0 {
+    background: rgb(246, 246, 246);
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+}
+
+.wiked-lite-token--template-1 {
+    background: rgb(228, 228, 228);
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+}
+
+.wiked-lite-token--template-2 {
+    background: rgb(218, 218, 218);
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+}
+
+.wiked-lite-token--template-3,
+.wiked-lite-token--template-4 {
+    background: rgb(208, 208, 208);
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+}
+
+.wiked-lite-token--module-name,
+.wiked-lite-token--template-name {
+    color: rgb(85, 0, 153);
+    font-weight: bold;
+}
+
+.wiked-lite-token--parser-function {
+    color: rgb(255, 0, 0);
+}
+
+.wiked-lite-token--entity {
+    color: rgb(255, 0, 0);
+}
+
+.wiked-lite-token--parameter {
+    color: rgb(153, 0, 0);
+    font-style: normal;
+}
+
+.wiked-lite-token--language-conversion {
+    background: rgb(246, 246, 246);
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+}
+
+.wiked-lite-token--language-variant {
+    font-style: italic;
+}
+
+.wiked-lite-token--bold {
+    font-weight: bold;
+}
+
+.wiked-lite-token--italic {
+    font-style: italic;
+}
+
+.wiked-lite-token--wiki-markup.wiked-lite-token--bold,
+.wiked-lite-token--wiki-markup.wiked-lite-token--italic {
+    font-style: normal;
+    font-weight: normal;
+}
+
+.wiked-lite-token--list {
+    color: rgb(255, 0, 0);
+    font-weight: bold;
+    background: rgb(246, 246, 246);
+}
+
+.wiked-lite-tooltip {
+    --wiked-lite-tooltip-background: rgb(255, 255, 255);
+    --wiked-lite-tooltip-bridge-left: 0;
+    --wiked-lite-tooltip-bridge-width: 100%;
+    --wiked-lite-tooltip-foreground: rgb(32, 33, 34);
+    --wiked-lite-tooltip-tail-left: 26px;
+
+    position: fixed;
+    box-sizing: border-box;
+    width: min(27em, calc(100vw - 24px));
+    padding: 0;
+    color: var(--wiked-lite-tooltip-foreground);
+    font-family: sans-serif;
+    font-size: 0.82em;
+    font-style: normal;
+    font-weight: normal;
+    line-height: 1.45;
+    overflow-wrap: anywhere;
+    pointer-events: auto;
+}
+
+.wiked-lite-tooltip::before {
+    position: absolute;
+    left: var(--wiked-lite-tooltip-bridge-left);
+    width: var(--wiked-lite-tooltip-bridge-width);
+    height: 10px;
+    pointer-events: auto;
+    content: "";
+}
+
+.wiked-lite-tooltip__visual {
+    position: relative;
+}
+
+.wiked-lite-tooltip__surface {
+    position: relative;
+    z-index: 1;
+    box-sizing: border-box;
+    max-height: 44vh;
+    overflow: auto;
+    overscroll-behavior: contain;
+    scrollbar-gutter: stable;
+    background: var(--wiked-lite-tooltip-background);
+    border: 1px solid rgb(200, 204, 209);
+    border-radius: 2px;
+    box-shadow: 0 20px 48px rgba(0, 0, 0, 0.2);
+}
+
+.wiked-lite-tooltip__tail {
+    position: absolute;
+    z-index: 2;
+    left: calc(var(--wiked-lite-tooltip-tail-left) - 6px);
+    box-sizing: border-box;
+    width: 12px;
+    height: 12px;
+    background: var(--wiked-lite-tooltip-background);
+    transform: rotate(45deg);
+    pointer-events: auto;
+}
+
+.wiked-lite-tooltip--above::before {
+    top: 100%;
+}
+
+.wiked-lite-tooltip--above .wiked-lite-tooltip__visual {
+    animation: wiked-lite-tooltip-in-down 0.2s ease forwards;
+}
+
+.wiked-lite-tooltip--above .wiked-lite-tooltip__tail {
+    bottom: -5px;
+    border-right: 1px solid rgb(200, 204, 209);
+    border-bottom: 1px solid rgb(200, 204, 209);
+}
+
+.wiked-lite-tooltip--below::before {
+    bottom: 100%;
+}
+
+.wiked-lite-tooltip--below .wiked-lite-tooltip__visual {
+    animation: wiked-lite-tooltip-in-up 0.2s ease forwards;
+}
+
+.wiked-lite-tooltip--below .wiked-lite-tooltip__tail {
+    top: -5px;
+    border-top: 1px solid rgb(200, 204, 209);
+    border-left: 1px solid rgb(200, 204, 209);
+}
+
+.wiked-lite-tooltip--closing.wiked-lite-tooltip--above
+    .wiked-lite-tooltip__visual {
+    animation: wiked-lite-tooltip-out-up 0.2s ease forwards;
+}
+
+.wiked-lite-tooltip--closing.wiked-lite-tooltip--below
+    .wiked-lite-tooltip__visual {
+    animation: wiked-lite-tooltip-out-down 0.2s ease forwards;
+}
+
+.wiked-lite-tooltip__title {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    padding: 0.7em 0.85em 0.55em;
+    color: var(--wiked-lite-tooltip-foreground);
+    font-size: 1.05em;
+    font-weight: 700;
+    line-height: 1.3;
+    background: var(--wiked-lite-tooltip-background);
+    border: 0;
+    border-bottom: 1px solid rgb(234, 236, 240);
+}
+
+.wiked-lite-tooltip__reference {
+    color: rgb(84, 89, 93);
+    font-size: 0.82em;
+    font-weight: normal;
+}
+
+.wiked-lite-tooltip__body {
+    padding: 0.55em 0.75em 0.7em;
+}
+
+.wiked-lite-tooltip__note {
+    padding: 0.7em 0.9em;
+    white-space: pre-wrap;
+}
+
+.wiked-lite-tooltip__details {
+    padding: 0.7em 0.9em;
+    border-bottom: 1px solid rgb(234, 236, 240);
+    overflow-wrap: anywhere;
+    white-space: pre-wrap;
+}
+
+.wiked-lite-tooltip__details-label {
+    display: block;
+    margin-bottom: 0.35em;
+}
+
+.wiked-lite-tooltip__code {
+    font-family: monospace;
+}
+
+.wiked-lite-tooltip__missing {
+    margin: 0;
+    padding: 0.7em 0.9em;
+    color: rgb(84, 89, 93);
+}
+
+.wiked-lite-tooltip__row {
+    display: block;
+    padding: 0.18em 0 0.18em 2em;
+    border: 0;
+    line-height: 1.35;
+    overflow-wrap: anywhere;
+    text-indent: -2em;
+    white-space: pre-wrap;
+}
+
+.wiked-lite-tooltip__row:last-child {
+    padding-bottom: 0;
+}
+
+.wiked-lite-tooltip__key {
+    margin-inline-end: 0.65em;
+    color: var(--wiked-lite-tooltip-foreground);
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.wiked-lite-tooltip__key:not(:first-child) {
+    margin-inline-start: 2em;
+}
+
+.wiked-lite-tooltip__value {
+    color: rgb(84, 89, 93);
+    font-family: sans-serif;
+    font-weight: normal;
+}
+
+.wiked-lite-tooltip__link {
+    display: inline;
+    color: rgb(51, 102, 204);
+    overflow-wrap: anywhere;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.wiked-lite-tooltip__link:hover {
+    text-decoration: underline;
+    text-underline-offset: 0.12em;
+}
+
+.wiked-lite-tooltip__comment {
+    color: rgb(138, 75, 8);
+    font-style: italic;
+}
+
+.wiked-lite-page-preview {
+    position: fixed;
+    z-index: 1;
+    box-sizing: border-box;
+    width: min(330px, calc(100vw - 24px));
+    max-height: calc(100vh - 24px);
+    overflow: auto;
+    border: 1px solid rgb(162, 169, 177);
+    border-radius: 3px;
+    padding: 14px 16px;
+    background: var(--wiked-lite-background, white);
+    box-shadow: 0 3px 12px rgb(0 0 0 / 16%);
+    color: var(--wiked-lite-foreground, rgb(32, 33, 34));
+    font-family: sans-serif;
+    font-size: 0.85rem;
+    line-height: 1.4;
+    pointer-events: auto;
+}
+
+.wiked-lite-page-preview__title {
+    display: block;
+    color: rgb(32, 51, 204);
+    font-size: 1.1em;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+.wiked-lite-page-preview__title:hover {
+    text-decoration: underline;
+}
+
+.wiked-lite-page-preview__description {
+    margin-top: 2px;
+    color: rgb(84, 89, 93);
+    font-size: 0.9em;
+}
+
+.wiked-lite-page-preview__extract {
+    display: -webkit-box;
+    margin: 10px 0 0;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 5;
+}
+
+@keyframes wiked-lite-tooltip-in-up {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes wiked-lite-tooltip-in-down {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes wiked-lite-tooltip-out-up {
+    from {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    to {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+}
+
+@keyframes wiked-lite-tooltip-out-down {
+    from {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    to {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .wiked-lite-tooltip .wiked-lite-tooltip__visual {
+        animation: none;
+    }
+}
