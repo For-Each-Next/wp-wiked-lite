@@ -36,6 +36,15 @@ export function createFormatterAction(
     getController: (
         textarea: HTMLTextAreaElement,
     ) => FormatterEditor | undefined,
+    setFeatureSettings: (
+        textarea: HTMLTextAreaElement,
+        settings: EditorFeatureSettings,
+    ) => void = (textarea, settings) =>
+        getController(textarea)?.setFeatureSettings(settings),
+    getFeatureSettings: (
+        textarea: HTMLTextAreaElement,
+    ) => EditorFeatureSettings | undefined = (textarea) =>
+        getController(textarea)?.getFeatureSettings(),
 ): () => Promise<void> {
     const sessionFormatterSettings = new WeakMap<
         HTMLTextAreaElement,
@@ -141,7 +150,8 @@ export function createFormatterAction(
                 onClose(selection) {
                     if (selection != null) {
                         sessionFormatterSettings.set(textarea, selection);
-                        getController(textarea)?.setFeatureSettings(
+                        setFeatureSettings(
+                            textarea,
                             getEditorFeatureSettings(selection),
                         );
                     }
@@ -186,7 +196,7 @@ export function createFormatterAction(
         const saved =
             sessionFormatterSettings.get(textarea) ??
             services.loadFormatterSettings();
-        const features = getController(textarea)?.getFeatureSettings();
+        const features = getFeatureSettings(textarea);
         return features == null
             ? saved
             : withEditorFeatureSettings(saved, features);

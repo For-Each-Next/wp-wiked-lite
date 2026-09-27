@@ -35,10 +35,17 @@ export async function createEditorController(
     textarea: HTMLTextAreaElement,
     services: EditorServices,
     onDestroy: (controller: EditorController) => void,
+    initialSettings: EditorFeatureSettings,
 ): Promise<EditorController> {
     const surface = await createEditorSurface(textarea);
     try {
-        return new EditorController(textarea, surface, services, onDestroy);
+        return new EditorController(
+            textarea,
+            surface,
+            services,
+            onDestroy,
+            initialSettings,
+        );
     } catch (error) {
         surface.frame.remove();
         throw error;
@@ -69,6 +76,7 @@ export class EditorController {
         surface: EditorSurface,
         services: EditorServices,
         onDestroy: (controller: EditorController) => void,
+        initialSettings: EditorFeatureSettings,
     ) {
         this.textarea = textarea;
         this.surface = surface;
@@ -82,6 +90,8 @@ export class EditorController {
             surface,
             services,
             () => this.refresh(),
+            (start, end, value) => this.replace(start, end, value),
+            initialSettings,
         );
         this.flushComposition = createCompositionSubmitHandler({
             dispatchInput: () => this.dispatchInput(),
@@ -119,7 +129,8 @@ export class EditorController {
         }
         const { editor, frame } = this.surface;
         const focusedSelection =
-            editor.ownerDocument.activeElement === editor
+            editor.ownerDocument.activeElement === editor ||
+            this.surface.overlay.contains(editor.ownerDocument.activeElement)
                 ? this.getSelection()
                 : null;
         this.destroyed = true;
@@ -314,8 +325,9 @@ export class EditorController {
         if (!this.dispatchingInput) {
             this.history.record(this.nativeSnapshot());
         }
-        this.contributions.dismiss();
-        if (!this.composing) {
+        if (this.composing) {
+            this.contributions.dismiss();
+        } else {
             this.contributions.sourceChanged();
             this.refresh();
         }

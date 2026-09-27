@@ -16,6 +16,7 @@ export interface HighlightSegment {
     missingTitle?: string;
     pagePreview?: PagePreviewTarget;
     referenceSource?: string;
+    referenceStart?: number;
     start: number;
     text: string;
 }
@@ -28,6 +29,7 @@ export interface HighlightRange extends SourceRange {
     pagePreview?: PagePreviewTarget;
     priority: number;
     referenceSource?: string;
+    referenceStart?: number;
 }
 
 const NON_VISIBLE_LINK_TOKEN_CLASSES = new Set([
@@ -88,9 +90,8 @@ function createSegment(
     end: number,
     ranges: HighlightRange[],
 ): HighlightSegment {
-    const active = ranges
-        .filter((range) => range.start <= start && range.end >= end)
-        .sort((left, right) => right.priority - left.priority);
+    // The boundary sweep passes only ranges covering this entire segment.
+    const active = ranges.sort((left, right) => right.priority - left.priority);
     const opaque = active.find((range) => range.priority === 100);
     const visible =
         opaque == null
@@ -110,6 +111,7 @@ function createSegment(
     const pagePreview = visible.find(
         (range) => range.pagePreview != null,
     )?.pagePreview;
+    const reference = visible.find((range) => range.referenceSource != null);
     return {
         classNames,
         end,
@@ -117,8 +119,10 @@ function createSegment(
         href: visible.find((range) => range.href != null)?.href,
         missingTitle: getVisibleMissingTitle(visible, classNames),
         ...(pagePreview == null ? {} : { pagePreview }),
-        referenceSource: visible.find((range) => range.referenceSource != null)
-            ?.referenceSource,
+        referenceSource: reference?.referenceSource,
+        ...(reference?.referenceStart == null
+            ? {}
+            : { referenceStart: reference.referenceStart }),
         start,
         text: source.slice(start, end),
     };
@@ -132,4 +136,21 @@ function getVisibleMissingTitle(
         return undefined;
     }
     return ranges.find((range) => range.missingTitle != null)?.missingTitle;
+}
+
+/** Combines overlapping source intervals without mutating their inputs. */
+export function mergeSourceRanges(ranges: SourceRange[]): SourceRange[] {
+    const merged: SourceRange[] = [];
+    const sorted = ranges
+        .filter((range) => range.start < range.end)
+        .toSorted((left, right) => left.start - right.start);
+    for (const range of sorted) {
+        const previous = merged.at(-1);
+        if (previous == null || previous.end < range.start) {
+            merged.push({ ...range });
+        } else {
+            previous.end = Math.max(previous.end, range.end);
+        }
+    }
+    return merged;
 }

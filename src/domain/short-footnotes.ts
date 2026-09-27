@@ -9,8 +9,8 @@ const DEFAULT_NORMALIZER: TemplateNameNormalizer = (value) =>
     wikitext.template.normalizeName(value);
 
 interface TemplateCall {
+    call: ParsedTemplateCall;
     descriptor: TemplateDescriptor;
-    raw: string;
 }
 
 interface TemplateDescriptor {
@@ -21,7 +21,7 @@ interface TemplateDescriptor {
 
 interface CitationCandidate {
     authors: string[];
-    raw: string;
+    call: ParsedTemplateCall;
     ref: string;
     year: string;
 }
@@ -33,29 +33,29 @@ interface ShortFootnoteUse {
 }
 
 /**
- * Resolves one complete {{sfn}} call to citation template wikitext.
+ * Resolves one complete {{sfn}} call to its parsed bibliography citation.
  *
  * @param source - Source text.
  * @param shortFootnote - Short footnote value.
- * @returns Citation wikitext resolved from a complete {{sfn}} call.
+ * @returns The matching citation and its exact source offsets.
  */
-export function resolveShortFootnoteCitation(
+export function findShortFootnoteCitation(
     source: string,
     shortFootnote: string,
     normalizeTemplateName: TemplateNameNormalizer = DEFAULT_NORMALIZER,
-): string {
+): ParsedTemplateCall | undefined {
     const useCall = findTemplateCalls(shortFootnote, normalizeTemplateName)[0];
     const use = useCall == null ? null : buildShortFootnoteUse(useCall);
     if (use == null) {
-        return "";
+        return undefined;
     }
-    const citations = findTemplateCalls(source, normalizeTemplateName).flatMap(
-        (call) => {
-            const candidate = buildCitationCandidate(call);
-            return candidate == null ? [] : [candidate];
-        },
-    );
-    return citations.find((item) => matchesCitation(use, item))?.raw ?? "";
+    for (const call of findTemplateCalls(source, normalizeTemplateName)) {
+        const candidate = buildCitationCandidate(call);
+        if (candidate != null && matchesCitation(use, candidate)) {
+            return candidate.call;
+        }
+    }
+    return undefined;
 }
 
 function buildShortFootnoteUse(call: TemplateCall): ShortFootnoteUse | null {
@@ -85,7 +85,7 @@ function buildCitationCandidate(call: TemplateCall): CitationCandidate | null {
     }
     return {
         authors,
-        raw: call.raw,
+        call: call.call,
         ref: normalizeValue(call.descriptor.named.get("ref") ?? ""),
         year,
     };
@@ -171,7 +171,7 @@ function findTemplateCalls(
                 call,
                 normalizeTemplateName,
             );
-            return descriptor == null ? [] : [{ raw: call.raw, descriptor }];
+            return descriptor == null ? [] : [{ call, descriptor }];
         });
 }
 

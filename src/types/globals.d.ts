@@ -18,6 +18,14 @@ declare global {
     const __WIKED_LITE_STYLES__: string;
     const __WIKED_LITE_FORMATTER_DIALOG_TEMPLATE__: string;
     const __WIKED_LITE_FORMATTER_DIALOG_STYLES__: string;
+    const __WIKED_LITE_REFERENCE_ICONS__: Record<
+        | "cdxIconEdit"
+        | "cdxIconEditUndo"
+        | "cdxIconAdd"
+        | "cdxIconAlert"
+        | "cdxIconUndo",
+        { path: string; flipInRtl: boolean; rtlPath?: string }
+    >;
 
     interface Window {
         wikEd?: {

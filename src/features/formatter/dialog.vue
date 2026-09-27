@@ -287,9 +287,24 @@
                                 msg("dialog.syntaxHighlightingDescription")
                             }}</template>
                         </cdx-checkbox>
+                        <cdx-checkbox v-model="useCodeMirrorForOtherModels">
+                            {{ msg("dialog.useCodeMirrorForOtherModels") }}
+                            <template #description
+                                >{{ msg("dialog.codeMirrorDescriptionBefore")
+                                }}<a
+                                    href="https://www.mediawiki.org/wiki/Extension:CodeMirror"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    >CodeMirror</a
+                                >{{
+                                    msg("dialog.codeMirrorDescriptionAfter")
+                                }}</template
+                            >
+                        </cdx-checkbox>
                     </cdx-field>
                     <cdx-field
                         :is-fieldset="true"
+                        :disabled="!syntaxHighlighting"
                         class="wiked-lite-dialog__section"
                     >
                         <template #label>{{
@@ -298,14 +313,14 @@
                         <cdx-checkbox v-model="largeFont">{{
                             msg("dialog.largeFont")
                         }}</cdx-checkbox>
-                        <cdx-checkbox
-                            v-model="smallReferenceText"
-                            :disabled="!syntaxHighlighting"
-                        >
+                        <cdx-checkbox v-model="smallReferenceText">
                             {{ msg("dialog.smallReferenceText") }}
                             <template #description>{{
                                 msg("dialog.smallReferenceTextDescription")
                             }}</template>
+                        </cdx-checkbox>
+                        <cdx-checkbox v-model="alternateReferenceColors">
+                            {{ msg("dialog.alternateReferenceColors") }}
                         </cdx-checkbox>
                     </cdx-field>
                     <cdx-field
@@ -347,12 +362,6 @@
                                 }}</template
                             >
                         </cdx-checkbox>
-                        <cdx-checkbox v-model="highlightMissing">
-                            {{ msg("dialog.highlightMissing") }}
-                            <template #description>{{
-                                msg("dialog.highlightMissingDescription")
-                            }}</template>
-                        </cdx-checkbox>
                         <cdx-checkbox v-model="linkPreviews">
                             {{ msg("dialog.linkPreviews") }}
                             <template #description
@@ -369,6 +378,12 @@
                                 }}</template
                             >
                         </cdx-checkbox>
+                        <cdx-checkbox v-model="highlightMissing">
+                            {{ msg("dialog.highlightMissing") }}
+                            <template #description>{{
+                                msg("dialog.highlightMissingDescription")
+                            }}</template>
+                        </cdx-checkbox>
                     </cdx-field>
                     <cdx-field
                         :is-fieldset="true"
@@ -378,50 +393,53 @@
                         <template #label>{{
                             msg("dialog.referencePreviewGroup")
                         }}</template>
-                        <cdx-checkbox v-model="alternateReferenceColors">
-                            {{ msg("dialog.alternateReferenceColors") }}
-                        </cdx-checkbox>
                         <cdx-checkbox v-model="referencePreviews">
                             {{ msg("dialog.referencePreviews") }}
                             <template #description>{{
                                 msg("dialog.referencePreviewsDescription")
                             }}</template>
                         </cdx-checkbox>
-                        <div
-                            v-if="referencePreviews"
-                            class="wiked-lite-dialog__dependent"
+                        <cdx-checkbox
+                            v-model="fullPageReferencePreviews"
+                            :disabled="
+                                !syntaxHighlighting || !referencePreviews
+                            "
                         >
-                            <cdx-checkbox v-model="fullPageReferencePreviews">
-                                {{ msg("dialog.fullPageReferencePreviews") }}
+                            {{ msg("dialog.fullPageReferencePreviews") }}
+                            <template #description>{{
+                                msg(
+                                    "dialog.fullPageReferencePreviewsDescription",
+                                )
+                            }}</template>
+                        </cdx-checkbox>
+                        <cdx-checkbox
+                            v-model="referenceEditing"
+                            :disabled="
+                                !syntaxHighlighting || !referencePreviews
+                            "
+                        >
+                            {{ msg("dialog.referenceEditing") }}
+                            <template #description>{{
+                                msg("dialog.referenceEditingDescription")
+                            }}</template>
+                        </cdx-checkbox>
+                        <div class="wiked-lite-dialog__dependent">
+                            <cdx-checkbox
+                                v-model="referenceLightweightEditing"
+                                :disabled="
+                                    !syntaxHighlighting ||
+                                    !referencePreviews ||
+                                    !referenceEditing
+                                "
+                            >
+                                {{ msg("dialog.referenceLightweightEditing") }}
                                 <template #description>{{
                                     msg(
-                                        "dialog.fullPageReferencePreviewsDescription",
+                                        "dialog.referenceLightweightEditingDescription",
                                     )
                                 }}</template>
                             </cdx-checkbox>
                         </div>
-                    </cdx-field>
-                    <cdx-field
-                        :is-fieldset="true"
-                        class="wiked-lite-dialog__section"
-                    >
-                        <template #label>{{
-                            msg("dialog.otherContentModels")
-                        }}</template>
-                        <cdx-checkbox v-model="useCodeMirrorForOtherModels">
-                            {{ msg("dialog.useCodeMirrorForOtherModels") }}
-                            <template #description
-                                >{{ msg("dialog.codeMirrorDescriptionBefore")
-                                }}<a
-                                    href="https://www.mediawiki.org/wiki/Extension:CodeMirror"
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    >CodeMirror</a
-                                >{{
-                                    msg("dialog.codeMirrorDescriptionAfter")
-                                }}</template
-                            >
-                        </cdx-checkbox>
                     </cdx-field>
                 </cdx-tab>
             </cdx-tabs>

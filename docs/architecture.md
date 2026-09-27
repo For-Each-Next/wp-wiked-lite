@@ -59,6 +59,17 @@ modules handle browser mechanics. Optional contributions own missing-link checks
 and hover previews.
 The formatter feature owns opening the dialog and applying an accepted operation.
 
+Reference preview UI stays together in `features/editor/reference-tooltip.ts`,
+including hover lifecycle, positioning, forms, icons, theme, and displayed values.
+Keep its private helpers in that module instead of scattering tooltip-only code
+across small files. Article and reference previews share frame-safe positioning
+and hovered-line selection in `features/editor/preview-position.ts`.
+`domain/reference-preview.ts` owns preview models and source
+edit validation, while `domain/reference-changes.ts` tracks saved changes and
+resets. `domain/reference-highlighting.ts` owns reference-specific highlight
+ranges; the main highlighter composes them with the other syntax rules. These
+domain modules remain independent of tooltip DOM and editor state.
+
 Every edit immediately updates the native textarea. Removing an enhanced surface
 restores that textarea and releases its event listeners, timers, observers, and
 optional contributions. Asynchronous lookups discard stale results after source,

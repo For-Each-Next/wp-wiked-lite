@@ -13,19 +13,13 @@ test("highlight colors use the wikEd Lite palette", () => {
     );
     assert.match(
         styles,
-        /\.wiked-lite-token--reference\s*\{[^}]*rgb\(243, 225, 247\)/su,
+        /\.wiked-lite-token--reference-pink\s*\{[^}]*rgb\(243, 225, 247\)/su,
     );
     assert.match(
         styles,
-        /\.wiked-lite-token--footnote\s*\{[^}]*rgb\(230, 242, 255\)/su,
+        /\.wiked-lite-token--reference-blue\s*\{[^}]*rgb\(230, 242, 255\)/su,
     );
-    const nestedReferencePattern = new RegExp(
-        String.raw`\.wiked-lite-token--footnote` +
-            String.raw`\.wiked-lite-token--reference\s*\{` +
-            String.raw`[^}]*rgb\(243, 225, 247\)`,
-        "su",
-    );
-    assert.match(styles, nestedReferencePattern);
+    assert.doesNotMatch(styles, /rgb\((?:211, 230, 250|231, 207, 239)\)/u);
     assert.match(
         styles,
         /\.wiked-lite-token--math\s*\{[^}]*rgb\(232, 240, 255\)/su,
@@ -53,9 +47,8 @@ test("reference text is small only in its editor state", () => {
 
     assert.match(rule, /font-size:\s*0\.86em/u);
     assert.doesNotMatch(
-        styles,
-
-        /(?:^|\n)\.wiked-lite-token--reference,\n\.wiked-lite-token--footnote\s*\{/u,
+        getStyleRule(".wiked-lite-token--reference"),
+        /font-size/u,
     );
     assert.doesNotMatch(styles, /--reference\s+\.wiked-lite-token--footnote/u);
     assert.doesNotMatch(styles, /--footnote\s+\.wiked-lite-token--reference/u);

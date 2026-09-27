@@ -1,7 +1,10 @@
-import { FORMATTER_DIALOG_STYLES } from "../features/formatter/dialog.ts";
 /** Discovers MediaWiki source editors and installs their contributions. */
 
 import type { EditorServices } from "./editor-contracts.ts";
+import {
+    getEditorFeatureSettings,
+    type EditorFeatureSettings,
+} from "../domain/formatter-settings.ts";
 import {
     type CodeMirrorMode,
     selectSourceEditor,
@@ -14,6 +17,7 @@ import {
 } from "../features/editor/controller.ts";
 import { isIncompatibleEditor } from "../features/editor/surface.ts";
 import { createFormatterAction } from "../features/formatter/action.ts";
+import { FORMATTER_DIALOG_STYLES } from "../features/formatter/dialog.ts";
 import { installWikEdLiteStyles } from "../features/editor/styles.ts";
 
 const TEXTAREA_ID = "wpTextbox1";
@@ -55,6 +59,10 @@ interface CodeMirrorRequire {
 
 const controllers = new WeakMap<HTMLTextAreaElement, EditorController>();
 const pendingEditors = new WeakSet<HTMLTextAreaElement>();
+const editorSettings = new WeakMap<
+    HTMLTextAreaElement,
+    EditorFeatureSettings
+>();
 /**
  * Discovers source editors and adds the formatter action.
  *
@@ -81,8 +89,17 @@ async function initialize(services: EditorServices): Promise<void> {
     await mw.loader.using(["mediawiki.api", "mediawiki.util"]);
     installWikEdLiteStyles(FORMATTER_DIALOG_STYLES);
     const namespaceLoad = services.loadNamespaces();
-    const openFormatter = createFormatterAction(services, (textarea) =>
-        controllers.get(textarea),
+    const openFormatter = createFormatterAction(
+        services,
+        (textarea) => controllers.get(textarea),
+        (textarea, settings) => {
+            editorSettings.set(textarea, { ...settings });
+            if (settings.syntaxHighlighting) {
+                controllers.get(textarea)?.setFeatureSettings(settings);
+            }
+            installEditor(services);
+        },
+        (textarea) => editorSettings.get(textarea),
     );
     installEditor(services);
     installTool(openFormatter);
@@ -104,20 +121,33 @@ function installEditor(services: EditorServices): void {
         return;
     }
     const existing = controllers.get(textarea);
-    if (shouldSkipEditorInstall(textarea, existing)) {
+    const settings =
+        editorSettings.get(textarea) ??
+        getEditorFeatureSettings(services.loadFormatterSettings());
+    editorSettings.set(textarea, settings);
+    if (
+        shouldSkipEditorInstall(textarea, existing, settings.syntaxHighlighting)
+    ) {
         return;
     }
     pendingEditors.add(textarea);
-    void createEditorController(textarea, services, (controller) => {
-        if (controllers.get(textarea) === controller) {
-            controllers.delete(textarea);
-        }
-    }).then(
+    void createEditorController(
+        textarea,
+        services,
+        (controller) => {
+            if (controllers.get(textarea) === controller) {
+                controllers.delete(textarea);
+            }
+        },
+        settings,
+    ).then(
         function register(controller): void {
             pendingEditors.delete(textarea);
+            const currentSettings = editorSettings.get(textarea) ?? settings;
             if (
                 !controller.isAttached() ||
                 controllers.has(textarea) ||
+                !currentSettings.syntaxHighlighting ||
                 !isWikitextSourcePage() ||
                 isIncompatibleEditor(textarea, true)
             ) {
@@ -125,7 +155,7 @@ function installEditor(services: EditorServices): void {
                 return;
             }
             controllers.set(textarea, controller);
-            controller.refresh();
+            controller.setFeatureSettings(currentSettings);
         },
         function report(error): void {
             pendingEditors.delete(textarea);
@@ -137,8 +167,9 @@ function installEditor(services: EditorServices): void {
 function shouldSkipEditorInstall(
     textarea: HTMLTextAreaElement,
     existing: EditorController | undefined,
+    enabled: boolean,
 ): boolean {
-    if (!isWikitextSourcePage()) {
+    if (!enabled || !isWikitextSourcePage()) {
         existing?.destroy();
         controllers.delete(textarea);
         return true;

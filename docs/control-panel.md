@@ -41,18 +41,113 @@ local verification.
 - Network-backed features remain opt-in. Redirect lookup runs only on an
   explicit formatting action. Editor lookups run in the background after the
   settings are accepted.
-- Disabling syntax highlighting renders plain text and pauses link checks and
-  previews while preserving their settings. Re-enabling it restores those
-  features. Older saved configurations keep highlighting enabled.
-- References includes an opt-in alternating-colors setting. Every second
-  consecutive reference group uses a darker background, preserving text colors.
+- Highlighting settings has four groups: **Syntax highlighting**, **Text and
+  colors**, **Links**, and **Reference popups**. The first group contains the
+  wikEd Lite wikitext switch followed by the independent CodeMirror option for
+  other content models. Text size and consecutive-reference colors share the
+  second group. Link navigation, hover previews, and missing-page coloring appear
+  in that order. Reference inspection, full-page source loading, editing, and
+  lightweight editing appear in that order in the final group.
+- Disabling wikEd Lite highlighting removes its editor frame and restores the
+  native textarea. The three display groups, including larger text, are disabled
+  while preserving their settings. Re-enabling highlighting restores the
+  enhanced editor and those features using the current source. Older saved
+  configurations keep highlighting enabled.
+- Text and colors includes an opt-in alternating-colors setting. References start
+  pink; consecutive groups alternate pink and blue backgrounds,
+  preserving text colors. A run of three references appears pink, blue, then pink.
   A self-closing `<ref />` and its directly following reference template form one
   group. Standalone reference templates also alternate; prose resets the sequence.
-- Subreference hover previews show the occurrence's `details` before its parent
+  `{{Efn}}` and its supported variants use ordinary template shading while
+  retaining the optional small reference text size. They do not count as reference
+  color groups; consecutive references inside a note alternate from pink
+  independently of references before the note.
+- Reference tag inspection shows a subreference's `details` before its parent
   bibliography. Missing parent definitions do not hide those details; enabled
   whole-page reference loading can still resolve the parent from another section.
   Subreference content retains its raw wikitext with the editor's syntax
   highlighting, without template expansion.
+- Article and reference previews point to the mouse position captured when the
+  popup opens, including on wrapped links and references. Moving the mouse over
+  the same source keeps the popup and arrow still. Popups flip above or below when
+  needed, and their bodies and arrows stay inside the editor frame. Near an edge,
+  the arrow points as close to the activation position as the frame allows.
+- Displayed citation values and reference content use source syntax highlighting
+  with the editor's palette instead of rendering the markup. Existing archive-URL
+  abbreviation is retained. Link aliases are bold, and missing-link highlighting
+  follows the editor setting.
+- Ctrl-clicking a wiki link or external URL in the source display opens it in a
+  new tab in both regular and lightweight modes.
+- The tooltip's main heading is **Reference**, followed by a named reference's
+  name in parentheses and styled as code. Unnamed references show only
+  **Reference**. Localized text nodes surround the name, which is rendered as
+  text inside a code element. **Sub-reference content**
+  labels the local details when present. The citation template name then heads
+  its parameter rows; content without a citation uses **Reference content**.
+- In regular mode, reference tooltips place action icons after citation field
+  values and edit icons after note content and subreference `details`. Browser tooltips
+  name citation fields and distinguish editing reference content from editing
+  subreference content. Paired person fields can be edited separately. The pencil
+  opens citation parameter name and value inputs, with the value selected by
+  default. Content editors use a textarea at least two lines high.
+  Every edit and add form, in both regular and lightweight modes, has **Cancel**,
+  **Reset**, and **Save** actions in that order. Regular forms use buttons.
+  Save updates the source and supports Undo/Redo, while Cancel or Escape
+  discards the draft.
+  Save and Reset keep the inspection popup open and refresh its displayed
+  content in both regular and lightweight modes.
+  Citations that cannot be parsed into fields expose their raw text through
+  **Edit reference content**. Inputs omit surrounding value whitespace;
+  edits preserve the existing leading and trailing whitespace in the source.
+  Action icons use the default text color and measure 0.85em, keeping them
+  smaller than the tooltip text. Links retain the theme's link colors.
+- **Enable editing while inspecting references** is enabled by default. Turning
+  it off hides edit, add, and reset controls while keeping reference inspection
+  available. It and **Read the full page source when editing a section** appear
+  at the same level as **Reference tag inspection**. Both remain visible but
+  disabled when inspection is off, retaining their values. Save settings
+  persists them; Reset settings restores their defaults.
+- **Use lightweight reference editing** is an optional child of the reference-editing setting,
+  off by default. A plain-text **[✎]** control before **[+]** opens a citation parameter's
+  name and value for editing together in their source display, with a shared
+  background highlighting the whole edit group. Reference and subreference content
+  also use the plain-text **[✎]** control. Lightweight edit controls use text characters,
+  with no SVG or image. Double-clicking source text does not start editing.
+  One set of plain **[×]**, **[↶]**, and **[✓]** controls follows the value for Cancel,
+  Reset, and Save, followed by **[+]** for adding a blank field.
+  Enter saves, Shift+Enter inserts a new line, and Escape cancels; this keyboard
+  guidance appears in the panel's setting description. The preference remains
+  visible and retains its value while disabled, becoming available when
+  inspection and editing are both enabled. It is saved and reset with the other
+  settings.
+- The add control beside a citation parameter inserts a new field immediately
+  after it, below it in multiline source. **Add a new field** sits alongside the
+  citation template heading and inserts before the first existing parameter.
+  Names must be valid and unused; duplicate fields and malformed wikitext values
+  are rejected. Insertions follow the existing parameter layout. Saving a new
+  field updates the source and supports Undo/Redo.
+- Editing or adding citation fields automatically escapes bare pipes as `{{!}}`.
+  Pipes inside nested templates, wikilinks, comments, and literal tags remain
+  unchanged.
+- Duplicate citation parameter names show a Codex alert icon in regular mode
+  and the **⚠︎** character in lightweight mode, with a browser tooltip identifying
+  the repeated name. Existing duplicate values remain visible and editable at
+  their own source locations.
+- Saved edits give only the changed parameter name or value a distinct
+  background. Regular mode uses Codex's edit-undo icon in place of the edit icon.
+  The Reset action has a browser tooltip showing the original value, which remains
+  the baseline through repeated gadget edits. Reset restores that original
+  value; for an already-added field, it removes the field. Both actions support
+  Undo/Redo. Reset stays grey and unavailable when there is no saved change and
+  the draft is unchanged; changing the draft name or value enables it.
+  Unapplied drafts do not highlight fields.
+- During section editing, edit and add controls for fields fetched from outside
+  the current section are greyed out. Field names and values retain their normal
+  appearance. The controls' browser tooltips explain why they are unavailable.
+  A subreference's local `details` remain editable even when its parent reference
+  comes from another section. Editing is also unavailable when a field cannot
+  be located in the current source. The same
+  restrictions apply to adding fields to a citation.
 - Clear cache acts immediately on page summaries, missing-page results, and
   whole-page reference source. Pending responses from before the clear are
   ignored. It does not reset preferences or namespace metadata.
@@ -75,6 +170,17 @@ local verification.
   passes through the existing editor replacement path and native textarea.
 
 ## Verification
+
+Reference tooltip surfaces, text, controls, state highlights, and warnings use
+the host wiki's Codex color tokens with Codex fallback colors. Wikitext syntax
+highlighting within reference tooltips retains the editor's syntax palette.
+
+The compact tooltip icons use the official `cdxIconEdit`, `cdxIconEditUndo`,
+`cdxIconAdd`, `cdxIconAlert`, and `cdxIconUndo` paths from the pinned `@wikimedia/codex-icons`
+package. The build validates and injects only their path data and direction
+metadata. The browser creates SVG elements directly, without loading an icon
+runtime. Both generated artifacts retain the icons' full MIT notice; see
+[third-party notices](../THIRD-PARTY-NOTICES.md).
 
 Unit tests cover draft acceptance, dismissal, option preservation, asynchronous
 snapshots, cache invalidation, and failure recovery. Offline browser tests mount

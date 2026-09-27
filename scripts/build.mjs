@@ -5,6 +5,13 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { Script } from "node:vm";
 import { parse } from "@vue/compiler-sfc";
+import {
+    cdxIconAdd,
+    cdxIconAlert,
+    cdxIconEdit,
+    cdxIconEditUndo,
+    cdxIconUndo,
+} from "@wikimedia/codex-icons";
 import { build, transform } from "esbuild";
 import { minify as minifyHtml } from "html-minifier-terser";
 import { minify as minifyJavaScript } from "terser";
@@ -12,6 +19,74 @@ import { minify as minifyJavaScript } from "terser";
 const root = dirname(dirname(fileURLToPath(import.meta.url)));
 const manifest = JSON.parse(await readFile(join(root, "package.json"), "utf8"));
 const outputDir = join(root, "dist");
+const iconManifest = JSON.parse(
+    await readFile(
+        join(root, "node_modules/@wikimedia/codex-icons/package.json"),
+        "utf8",
+    ),
+);
+const iconAttribution = [
+    `MIT source: @wikimedia/codex-icons ${iconManifest.version} (SVG icon paths).`,
+    "Upstream: https://gerrit.wikimedia.org/g/design/codex/",
+    "Project-owned code: CC0-1.0. Full MIT notice follows below.",
+];
+const referenceIcons = Object.fromEntries(
+    Object.entries({
+        cdxIconEdit,
+        cdxIconEditUndo,
+        cdxIconAdd,
+        cdxIconAlert,
+        cdxIconUndo,
+    }).map(([name, icon]) => [name, extractReferenceIcon(name, icon)]),
+);
+const iconLicense = (
+    await readFile(
+        join(root, "node_modules/@wikimedia/codex-icons/LICENSE"),
+        "utf8",
+    )
+).trim();
+if (!iconLicense.startsWith("MIT License") || iconLicense.includes("*/")) {
+    throw new Error("The Codex icon license cannot be embedded safely.");
+}
+
+function extractReferenceIcon(name, icon) {
+    if (typeof icon === "string") {
+        return { path: extractIconPath(name, icon), flipInRtl: false };
+    }
+    if (icon == null || typeof icon !== "object") {
+        throw new Error(`${name} has an unsupported icon representation.`);
+    }
+    const { ltr, rtl, shouldFlip = false, ...unsupported } = icon;
+    if (
+        typeof shouldFlip !== "boolean" ||
+        (rtl !== undefined && typeof rtl !== "string") ||
+        Object.keys(unsupported).length > 0
+    ) {
+        throw new Error(`${name} has unsupported directional icon metadata.`);
+    }
+    return {
+        path: extractIconPath(name, ltr),
+        flipInRtl: shouldFlip,
+        ...(rtl == null
+            ? {}
+            : { rtlPath: extractIconPath(`${name} RTL`, rtl) }),
+    };
+}
+
+function extractIconPath(name, markup) {
+    const match =
+        typeof markup === "string"
+            ? markup.match(
+                  /^<path d="([MmZzLlHhVvCcSsQqTtAa0-9eE.+,\s-]+)"\/>$/u,
+              )
+            : null;
+    if (match == null) {
+        throw new Error(
+            `${name} must contain one SVG path with only path data.`,
+        );
+    }
+    return match[1];
+}
 
 const description = [
     "Based on [[w:en:User:Cacycle|Cacycle]]'s [[w:en:User:Cacycle/wikEd|wikEd]].",
@@ -84,6 +159,7 @@ async function bundleSource(compact) {
                 JSON.stringify(dialogStyles),
             __WIKED_LITE_FORMATTER_DIALOG_TEMPLATE__:
                 JSON.stringify(dialogTemplate),
+            __WIKED_LITE_REFERENCE_ICONS__: JSON.stringify(referenceIcons),
         },
         entryPoints: ["src/app/browser.ts"],
         format: "iife",
@@ -182,10 +258,32 @@ function mediaWikiArtifact(program) {
         " *",
         ` * @name ${manifest.name}`,
         ` * @version ${manifest.version}`,
-        " * @license CC0-1.0",
+        " * @license CC0-1.0 AND MIT",
+        " *",
+        ...iconAttribution.map((line) => ` * ${line}`),
         " */",
     ];
-    return [...header, "", "//<nowiki>", program, "//</nowiki>", ""].join("\n");
+    return [
+        ...header,
+        "",
+        thirdPartyIconNotice(),
+        "",
+        "//<nowiki>",
+        program,
+        "//</nowiki>",
+        "",
+    ].join("\n");
+}
+
+function thirdPartyIconNotice() {
+    return [
+        "/*!",
+        " * Project-owned code is dedicated under CC0-1.0.",
+        " * Bundled Codex icon paths retain their MIT license:",
+        " *",
+        ...iconLicense.split(/\r?\n/u).map((line) => ` * ${line}`),
+        " */",
+    ].join("\n");
 }
 
 function wrapHeaderParagraph(paragraph) {
@@ -214,11 +312,14 @@ function userscriptArtifact(program) {
         "// @namespace    wiked-lite",
         `// @version      ${manifest.version}`,
         `// @description  ${manifest.description}`,
-        "// @license      CC0-1.0",
+        "// @license      CC0-1.0 AND MIT",
+        ...iconAttribution.map((line) => `// ${line}`),
         ...userscriptMatches.map((match) => `// @match        ${match}`),
         "// @grant        none",
         "// @run-at       document-end",
         "// ==/UserScript==",
+        "",
+        thirdPartyIconNotice(),
         "",
         program,
         "",

@@ -170,10 +170,60 @@ test("Codex tabs expose relevant controls and a live template example", async ({
     await expect(
         page.getByRole("button", { name: "Apply settings", exact: true }),
     ).toBeVisible();
+    const groups = page
+        .getByRole("tabpanel", {
+            name: "Highlighting settings",
+            exact: true,
+        })
+        .getByRole("group");
+    const expectedGroups = [
+        {
+            name: "Syntax highlighting",
+            controls: [
+                "Use wikEd Lite to highlight wikitext pages",
+                "Use CodeMirror for other content models",
+            ],
+        },
+        {
+            name: "Text and colors",
+            controls: [
+                "Use larger text",
+                "Use smaller text for references and notes",
+                "Alternate pink and blue for consecutive references",
+            ],
+        },
+        {
+            name: "Links",
+            controls: [
+                /^Hold (?:Ctrl|Command) and click link source to open a new tab$/u,
+                "Show page previews on hover",
+                "Automatically mark missing page titles in red",
+            ],
+        },
+        {
+            name: "Reference popups",
+            controls: [
+                "Reference tag inspection",
+                "Read the full page source when editing a section",
+                "Enable editing while inspecting references",
+                "Use lightweight reference editing",
+            ],
+        },
+    ];
+    await expect(groups).toHaveCount(expectedGroups.length);
+    for (const [index, expected] of expectedGroups.entries()) {
+        const group = groups.nth(index);
+        await expect(group).toHaveAccessibleName(expected.name);
+        const controls = group.getByRole("checkbox");
+        await expect(controls).toHaveCount(expected.controls.length);
+        for (const [controlIndex, name] of expected.controls.entries()) {
+            await expect(controls.nth(controlIndex)).toHaveAccessibleName(name);
+        }
+    }
     await capture(page, "editor-en");
     await page
         .getByRole("checkbox", {
-            name: "Show reference previews on hover",
+            name: "Reference tag inspection",
             exact: true,
         })
         .uncheck();
@@ -182,7 +232,7 @@ test("Codex tabs expose relevant controls and a live template example", async ({
             name: "Read the full page source when editing a section",
             exact: true,
         }),
-    ).toBeHidden();
+    ).toBeDisabled();
     await page
         .getByRole("button", { name: "More options", exact: true })
         .focus();
@@ -414,7 +464,7 @@ test("Ctrl/Cmd-click navigation can be disabled, saved, and re-enabled", async (
     await openHighlighting();
     await setting.check();
     const highlighting = page.getByRole("checkbox", {
-        name: "Highlight wikitext syntax",
+        name: "Use wikEd Lite to highlight wikitext pages",
         exact: true,
     });
     await highlighting.uncheck();
@@ -489,13 +539,16 @@ test("alternating reference backgrounds follow applied settings and survive savi
     page,
 }) => {
     const source =
-        '<ref>First</ref><ref name="second" />{{sfn|a}}<ref name="third">Third</ref>';
+        '<ref>First</ref><ref name="second" />{{sfn|a}}<ref name="third">Third</ref>' +
+        " prose {{efn|Note one}}{{efn|Note two}}" +
+        " prose <ref>Mixed ref</ref>{{efn|Mixed note}}" +
+        " prose {{efn|Outer note <ref>Nested ref</ref>}}{{efn|Next note}}";
     await mountFormatter(page, { source });
     const editor = page
         .frameLocator(".wiked-lite-frame")
         .locator(".wiked-lite-editor");
     const setting = page.getByRole("checkbox", {
-        name: "Alternate colors for consecutive references",
+        name: "Alternate pink and blue for consecutive references",
         exact: true,
     });
     const apply = page.getByRole("button", {
@@ -530,7 +583,12 @@ test("alternating reference backgrounds follow applied settings and survive savi
     await expect(setting).not.toBeChecked();
     const normal = await styleAt("First");
     const second = await styleAt("second");
+    expect(normal.background).toBe("rgb(243, 225, 247)");
     expect(second.background).toBe(normal.background);
+    const templateBackground = "rgb(246, 246, 246)";
+    expect((await styleAt("Note one")).background).toBe(templateBackground);
+    expect((await styleAt("Note two")).background).toBe(templateBackground);
+    expect((await styleAt("Nested ref")).background).toBe(normal.background);
     await setting.check();
     await chooseMore(page, "Save settings");
     expect((await storedSettings(page))?.alternateReferenceColors).toBe(true);
@@ -540,7 +598,15 @@ test("alternating reference backgrounds follow applied settings and survive savi
         .poll(async () => (await styleAt("second")).background)
         .not.toBe(normal.background);
     const alternate = await styleAt("second");
+    expect(alternate.background).toBe("rgb(230, 242, 255)");
     expect(alternate.color).toBe(second.color);
+    expect((await styleAt("Note one")).background).toBe(templateBackground);
+    expect((await styleAt("Note two")).background).toBe(templateBackground);
+    expect((await styleAt("Mixed ref")).background).toBe(normal.background);
+    expect((await styleAt("Mixed note")).background).toBe(templateBackground);
+    expect((await styleAt("Outer note")).background).toBe(templateBackground);
+    expect((await styleAt("Nested ref")).background).toBe(normal.background);
+    expect((await styleAt("Next note")).background).toBe(templateBackground);
     expect((await styleAt("sfn")).background).toBe(alternate.background);
     expect((await styleAt("Third")).background).toBe(normal.background);
     await expect(page.locator("#wpTextbox1")).toHaveValue(source);
@@ -550,13 +616,14 @@ test("alternating reference backgrounds follow applied settings and survive savi
     await expect(setting).toBeChecked();
     expect((await styleAt("second")).background).toBe(alternate.background);
     const highlighting = page.getByRole("checkbox", {
-        name: "Highlight wikitext syntax",
+        name: "Use wikEd Lite to highlight wikitext pages",
         exact: true,
     });
     await highlighting.uncheck();
     await expect(setting).toBeDisabled();
     await apply.click();
-    await expect(editor.locator("span")).toHaveCount(0);
+    await expect(page.locator(".wiked-lite-frame")).toHaveCount(0);
+    await expect(page.locator("#wpTextbox1")).toBeVisible();
     await page.locator("#wiked-lite-format").click();
     await openHighlighting();
     await highlighting.check();
@@ -573,6 +640,225 @@ test("alternating reference backgrounds follow applied settings and survive savi
     await expect
         .poll(async () => (await styleAt("second")).background)
         .toBe(normal.background);
+    await expect(page.locator("#wpTextbox1")).toHaveValue(source);
+});
+
+test("Efn retains small template text while its embedded references alternate colors", async ({
+    page,
+}) => {
+    const source =
+        '游戏中的角色向玩家道别<ref name=":4" /><ref name="DREAM" ' +
+        'details="{{URL|https://example.test/interview|55億年後になくなる地球}}. 完結編 :2" />' +
+        "{{Efn|部分游戏内容译名综合参考自以下来源：" +
+        "<ref>{{Cite web |title=MOTHER系列参战斗士 琉加 #37 {{!}} 任天堂明星大乱斗 特别版 " +
+        "|url=https://example.test/fighter |language=zh-Hans}}</ref>" +
+        '<ref name=":2" details="{{URL|https://example.test/guide|地球冒险3}}. 攻略人行道 :90-93" />' +
+        '<ref name="UCG" details="阿修罗. {{url|https://example.test/mother3|Mother3 攻略透解}} :58-63" />' +
+        "<ref>{{Cite journal |author=张永 |title=地球冒险3 接上期 " +
+        "|url=https://example.test/journal |journal=掌机迷 |page=78-83}}</ref>}}。";
+    await mountFormatter(page, {
+        source,
+        settings: {
+            ...createDefaultFormatterSettings(),
+            alternateReferenceColors: true,
+        },
+    });
+    const editor = page
+        .frameLocator(".wiked-lite-frame")
+        .locator(".wiked-lite-editor");
+    const pink = "rgb(243, 225, 247)";
+    const blue = "rgb(230, 242, 255)";
+    const gray = "rgb(246, 246, 246)";
+    const expectedStyles = [
+        [":4", pink],
+        ["DREAM", blue],
+        ["55億年後", blue],
+        ["Efn", gray],
+        ["部分游戏内容", gray],
+        ["<ref>{{Cite web", pink],
+        ["MOTHER系列", pink],
+        ["任天堂明星", pink],
+        ['<ref name=":2"', blue],
+        ["攻略人行道", blue],
+        ['<ref name="UCG"', pink],
+        ["Mother3 攻略", pink],
+        ["<ref>{{Cite journal", blue],
+        ["掌机迷", blue],
+        ["</ref>}}", blue],
+        ["}}。", gray],
+    ] as const;
+    const styles = () =>
+        editor.evaluate(
+            (element, offsets) =>
+                offsets.map((offset) => {
+                    let remaining = offset;
+                    for (const node of element.childNodes) {
+                        const length = node.textContent?.length ?? 0;
+                        if (remaining < length) {
+                            const style = getComputedStyle(
+                                node instanceof Element ? node : element,
+                            );
+                            return {
+                                background: style.backgroundColor,
+                                fontSize: Number.parseFloat(style.fontSize),
+                            };
+                        }
+                        remaining -= length;
+                    }
+                    throw new Error("Explanatory note text was not rendered");
+                }),
+            expectedStyles.map(([text]) => source.indexOf(text)),
+        );
+    const editorFontSize = await editor.evaluate((element) =>
+        Number.parseFloat(getComputedStyle(element).fontSize),
+    );
+    const smallStyles = await styles();
+    for (const [index, [text, background]] of expectedStyles.entries()) {
+        expect(smallStyles[index]?.background, text).toBe(background);
+        expect(smallStyles[index]?.fontSize, text).toBeCloseTo(
+            editorFontSize * 0.86,
+            2,
+        );
+    }
+
+    await page
+        .getByRole("tab", { name: "Highlighting settings", exact: true })
+        .click();
+    await page
+        .getByRole("checkbox", {
+            name: "Use smaller text for references and notes",
+            exact: true,
+        })
+        .uncheck();
+    await page
+        .getByRole("button", { name: "Apply settings", exact: true })
+        .click();
+    const fullStyles = await styles();
+    for (const [index, [text, background]] of expectedStyles.entries()) {
+        expect(fullStyles[index]?.background, text).toBe(background);
+        expect(fullStyles[index]?.fontSize, text).toBe(editorFontSize);
+    }
+    await expect(editor).toHaveText(source);
+    await expect(page.locator("#wpTextbox1")).toHaveValue(source);
+});
+
+test("reference editing stays visible under its disabled parent and retains saved choices", async ({
+    page,
+}) => {
+    const source = "<ref>{{cite book|title=Book}}</ref>";
+    await mountFormatter(page, { source, open: false });
+    const frame = page.frameLocator(".wiked-lite-frame");
+    const editor = frame.locator(".wiked-lite-editor");
+    const reference = editor.locator("[data-reference]").first();
+    const tooltip = frame.locator(".wiked-lite-tooltip");
+    const setting = page.getByRole("checkbox", {
+        name: "Enable editing while inspecting references",
+        exact: true,
+    });
+    const previews = page.getByRole("checkbox", {
+        name: "Reference tag inspection",
+        exact: true,
+    });
+    const highlighting = page.getByRole("checkbox", {
+        name: "Use wikEd Lite to highlight wikitext pages",
+        exact: true,
+    });
+    const lightweight = page.getByRole("checkbox", {
+        name: "Use lightweight reference editing",
+        exact: true,
+    });
+    const fullPage = page.getByRole("checkbox", {
+        name: "Read the full page source when editing a section",
+        exact: true,
+    });
+    const apply = page.getByRole("button", {
+        name: "Apply settings",
+        exact: true,
+    });
+    const openHighlighting = async () => {
+        await page.locator("#wiked-lite-format").click();
+        await page
+            .getByRole("tab", { name: "Highlighting settings", exact: true })
+            .click();
+    };
+
+    await reference.hover();
+    await expect(
+        tooltip.getByRole("button", {
+            name: "Edit field 'title'",
+            exact: true,
+        }),
+    ).toBeVisible();
+    await editor.press("Escape");
+    await openHighlighting();
+    await expect(setting).toBeChecked();
+    await expect(lightweight).not.toBeChecked();
+    const parentBounds = await previews.boundingBox();
+    const editingBounds = await setting.boundingBox();
+    const fullPageBounds = await fullPage.boundingBox();
+    const lightweightBounds = await lightweight.boundingBox();
+    expect(parentBounds).not.toBeNull();
+    expect(editingBounds).not.toBeNull();
+    expect(fullPageBounds).not.toBeNull();
+    expect(lightweightBounds).not.toBeNull();
+    expect(editingBounds!.x).toBeCloseTo(parentBounds!.x, 0);
+    expect(fullPageBounds!.x).toBeCloseTo(parentBounds!.x, 0);
+    expect(lightweightBounds!.x).toBeGreaterThan(editingBounds!.x);
+    await lightweight.check();
+    await fullPage.check();
+    await setting.uncheck();
+    await expect(lightweight).toBeDisabled();
+    await expect(lightweight).toBeChecked();
+    await previews.uncheck();
+    await expect(setting).toBeVisible();
+    await expect(setting).toBeDisabled();
+    await expect(fullPage).toBeVisible();
+    await expect(fullPage).toBeDisabled();
+    await expect(fullPage).toBeChecked();
+    await expect(lightweight).toBeDisabled();
+    await previews.check();
+    await expect(setting).not.toBeChecked();
+    await expect(fullPage).toBeEnabled();
+    await expect(fullPage).toBeChecked();
+    await highlighting.uncheck();
+    await expect(setting).toBeDisabled();
+    await highlighting.check();
+    await expect(setting).toBeEnabled();
+    await expect(setting).not.toBeChecked();
+    await chooseMore(page, "Save settings");
+    expect((await storedSettings(page))?.referenceEditing).toBe(false);
+    expect((await storedSettings(page))?.referencePreviews).toBe(true);
+    expect((await storedSettings(page))?.referenceLightweightEditing).toBe(
+        true,
+    );
+    expect((await storedSettings(page))?.fullPageReferencePreviews).toBe(true);
+    await apply.click();
+    await reference.hover();
+    await expect(tooltip).toBeVisible();
+    await expect(tooltip).toContainText("Book");
+    await expect(tooltip.getByRole("button")).toHaveCount(0);
+    await expect(page.locator("#wpTextbox1")).toHaveValue(source);
+
+    await mountFormatter(page, { source, open: false });
+    await reference.hover();
+    await expect(tooltip).toBeVisible();
+    await expect(tooltip).toContainText("Book");
+    await expect(tooltip.getByRole("button")).toHaveCount(0);
+    await editor.press("Escape");
+    await openHighlighting();
+    await expect(setting).not.toBeChecked();
+    await chooseMore(page, "Reset settings");
+    await expect(setting).toBeChecked();
+    await expect(lightweight).not.toBeChecked();
+    await expect(fullPage).not.toBeChecked();
+    await apply.click();
+    await reference.hover();
+    await expect(
+        tooltip.getByRole("button", {
+            name: "Edit field 'title'",
+            exact: true,
+        }),
+    ).toBeVisible();
     await expect(page.locator("#wpTextbox1")).toHaveValue(source);
 });
 
@@ -634,7 +920,7 @@ test("Reset settings removes saved choices and restores both tabs without applyi
         .click();
     await page
         .getByRole("checkbox", {
-            name: "Show reference previews on hover",
+            name: "Reference tag inspection",
             exact: true,
         })
         .uncheck();
@@ -693,7 +979,7 @@ test("Reset settings removes saved choices and restores both tabs without applyi
     ).not.toBeChecked();
     await expect(
         page.getByRole("checkbox", {
-            name: "Show reference previews on hover",
+            name: "Reference tag inspection",
             exact: true,
         }),
     ).toBeChecked();
@@ -718,7 +1004,7 @@ test("Reset settings removes saved choices and restores both tabs without applyi
     ).toBeChecked();
     await expect(
         page.getByRole("checkbox", {
-            name: "Show reference previews on hover",
+            name: "Reference tag inspection",
             exact: true,
         }),
     ).not.toBeChecked();
@@ -1046,79 +1332,116 @@ for (const wikiId of ["enwiki", "zhwiki", "examplewiki"]) {
     });
 }
 
-test("disabling highlighting keeps text editable and preserves history across toggles", async ({
+test("disabling highlighting restores the native textarea and retains display choices", async ({
     page,
 }) => {
-    await mountFormatter(page);
+    const settings = {
+        ...createDefaultFormatterSettings(),
+        largeFont: true,
+    };
+    await mountFormatter(page, { settings });
+    const textarea = page.locator("#wpTextbox1");
+    const nativeFontSize = await textarea.evaluate(
+        (element) => getComputedStyle(element).fontSize,
+    );
     const editor = page
         .frameLocator(".wiked-lite-frame")
         .locator(".wiked-lite-editor");
+    const enhancedFontSize = await editor.evaluate(
+        (element) => getComputedStyle(element).fontSize,
+    );
+    const highlighting = page.getByRole("checkbox", {
+        name: "Use wikEd Lite to highlight wikitext pages",
+        exact: true,
+    });
+    const largeFont = page.getByRole("checkbox", {
+        name: "Use larger text",
+        exact: true,
+    });
     await expect(editor.locator("span").first()).toBeVisible();
     await page
         .getByRole("tab", { name: "Highlighting settings", exact: true })
         .click();
-    await page
-        .getByRole("checkbox", {
-            name: "Highlight wikitext syntax",
-            exact: true,
-        })
-        .uncheck();
+    await highlighting.uncheck();
+    for (const name of ["Text and colors", "Links", "Reference popups"]) {
+        const controls = page
+            .getByRole("group", { name, exact: true })
+            .getByRole("checkbox");
+        for (const control of await controls.all()) {
+            await expect(control).toBeDisabled();
+        }
+    }
+    await expect(largeFont).toBeChecked();
     await expect(
         page.getByRole("checkbox", {
-            name: "Show page previews on hover",
+            name: "Use CodeMirror for other content models",
             exact: true,
         }),
-    ).toBeDisabled();
+    ).toBeEnabled();
     await expect(
         page.getByRole("checkbox", {
-            name: "Show reference previews on hover",
+            name: "Reference tag inspection",
             exact: true,
         }),
     ).toBeChecked();
     await page
         .getByRole("button", { name: "Apply settings", exact: true })
         .click();
-    await expect(editor.locator("span")).toHaveCount(0);
-    await expect(page.locator("#wpTextbox1")).toHaveValue(initialSource);
-    await editor.focus();
-    await editor.evaluate((element) => {
-        const range = element.ownerDocument.createRange();
-        range.selectNodeContents(element);
-        range.collapse(false);
-        const selection = element.ownerDocument.getSelection();
-        selection?.removeAllRanges();
-        selection?.addRange(range);
+    await expect(page.locator(".wiked-lite-frame")).toHaveCount(0);
+    await expect(textarea).toBeVisible();
+    await expect(textarea).toHaveValue(initialSource);
+    expect(
+        await textarea.evaluate(
+            (element) => getComputedStyle(element).fontSize,
+        ),
+    ).toBe(nativeFontSize);
+    await textarea.focus();
+    await textarea.evaluate((element: HTMLTextAreaElement) => {
+        element.setSelectionRange(element.value.length, element.value.length);
     });
-    await editor.press("!");
-    await expect(page.locator("#wpTextbox1")).toHaveValue(`${initialSource}!`);
+    await textarea.press("!");
+    await expect(textarea).toHaveValue(`${initialSource}!`);
     await page.locator("#wiked-lite-format").click();
     await page
         .getByRole("tab", { name: "Highlighting settings", exact: true })
         .click();
-    await expect(
-        page.getByRole("checkbox", {
-            name: "Highlight wikitext syntax",
-            exact: true,
-        }),
-    ).not.toBeChecked();
+    await expect(highlighting).not.toBeChecked();
+    await expect(largeFont).toBeDisabled();
+    await expect(largeFont).toBeChecked();
+    await chooseMore(page, "Reset settings");
+    await expect(highlighting).toBeChecked();
+    await expect(largeFont).not.toBeChecked();
     await page
-        .getByRole("checkbox", {
-            name: "Highlight wikitext syntax",
-            exact: true,
-        })
-        .check();
+        .getByRole("button", { name: "Cancel", exact: true })
+        .last()
+        .click();
+    await expect(page.locator(".wiked-lite-frame")).toHaveCount(0);
+    await expect(textarea).toBeVisible();
+    await page.locator("#wiked-lite-format").click();
+    await page
+        .getByRole("tab", { name: "Highlighting settings", exact: true })
+        .click();
+    await expect(highlighting).not.toBeChecked();
+    await expect(largeFont).toBeDisabled();
+    await expect(largeFont).toBeChecked();
+    await highlighting.check();
+    await expect(largeFont).toBeEnabled();
     await expect(
         page.getByRole("checkbox", {
-            name: "Show reference previews on hover",
+            name: "Reference tag inspection",
             exact: true,
         }),
     ).toBeEnabled();
     await page
         .getByRole("button", { name: "Apply settings", exact: true })
         .click();
+    await expect(textarea).toBeHidden();
+    await expect(textarea).toHaveValue(`${initialSource}!`);
+    await expect(editor).toHaveText(`${initialSource}!`);
     await expect(editor.locator("span").first()).toBeVisible();
-    await editor.press(process.platform === "darwin" ? "Meta+z" : "Control+z");
-    await expect(page.locator("#wpTextbox1")).toHaveValue(initialSource);
+    expect(
+        await editor.evaluate((element) => getComputedStyle(element).fontSize),
+    ).toBe(enhancedFontSize);
 });
 
 test("Clear cache refreshes missing titles and page summaries without changing source or settings", async ({

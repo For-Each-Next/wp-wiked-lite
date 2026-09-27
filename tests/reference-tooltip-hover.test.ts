@@ -98,6 +98,9 @@ function createHoverHarness(delay?: number): {
             reads += 1;
             return "";
         },
+        replace() {
+            throw new Error("An empty reference must not be editable.");
+        },
         overlay: {
             append() {
                 throw new Error("An empty reference must not create a popup.");

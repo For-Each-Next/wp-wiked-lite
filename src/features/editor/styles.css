@@ -255,29 +255,19 @@
 }
 
 .wiked-lite-token--reference {
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
     font-style: normal;
     background: rgb(243, 225, 247) !important;
-    box-decoration-break: clone;
-    -webkit-box-decoration-break: clone;
 }
 
-.wiked-lite-token--footnote {
+/* Explanatory notes retain template shading; only citations use these palettes. */
+.wiked-lite-token--reference.wiked-lite-token--reference-blue {
     background: rgb(230, 242, 255) !important;
-    box-decoration-break: clone;
-    -webkit-box-decoration-break: clone;
 }
 
-.wiked-lite-token--footnote.wiked-lite-token--reference {
+.wiked-lite-token--reference.wiked-lite-token--reference-pink {
     background: rgb(243, 225, 247) !important;
-}
-
-/* Alternate backgrounds preserve the contrast of every syntax text color. */
-.wiked-lite-token--footnote.wiked-lite-token--reference-alternate {
-    background: rgb(211, 230, 250) !important;
-}
-
-.wiked-lite-token--reference.wiked-lite-token--reference-alternate {
-    background: rgb(231, 207, 239) !important;
 }
 
 /* Flat highlight spans keep overlapping note syntax at one small level. */
@@ -363,17 +353,15 @@
 }
 
 .wiked-lite-tooltip {
-    --wiked-lite-tooltip-background: rgb(255, 255, 255);
     --wiked-lite-tooltip-bridge-left: 0;
     --wiked-lite-tooltip-bridge-width: 100%;
-    --wiked-lite-tooltip-foreground: rgb(32, 33, 34);
     --wiked-lite-tooltip-tail-left: 26px;
 
     position: fixed;
     box-sizing: border-box;
     width: min(27em, calc(100vw - 24px));
     padding: 0;
-    color: var(--wiked-lite-tooltip-foreground);
+    color: var(--color-base);
     font-family: sans-serif;
     font-size: 0.82em;
     font-style: normal;
@@ -404,10 +392,10 @@
     overflow: auto;
     overscroll-behavior: contain;
     scrollbar-gutter: stable;
-    background: var(--wiked-lite-tooltip-background);
-    border: 1px solid rgb(200, 204, 209);
+    background: var(--background-color-base);
+    border: 1px solid var(--border-color-base);
     border-radius: 2px;
-    box-shadow: 0 20px 48px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 20px 48px var(--box-shadow-color-alpha-base);
 }
 
 .wiked-lite-tooltip__tail {
@@ -417,7 +405,7 @@
     box-sizing: border-box;
     width: 12px;
     height: 12px;
-    background: var(--wiked-lite-tooltip-background);
+    background: var(--background-color-base);
     transform: rotate(45deg);
     pointer-events: auto;
 }
@@ -432,8 +420,8 @@
 
 .wiked-lite-tooltip--above .wiked-lite-tooltip__tail {
     bottom: -5px;
-    border-right: 1px solid rgb(200, 204, 209);
-    border-bottom: 1px solid rgb(200, 204, 209);
+    border-right: 1px solid var(--border-color-base);
+    border-bottom: 1px solid var(--border-color-base);
 }
 
 .wiked-lite-tooltip--below::before {
@@ -446,8 +434,8 @@
 
 .wiked-lite-tooltip--below .wiked-lite-tooltip__tail {
     top: -5px;
-    border-top: 1px solid rgb(200, 204, 209);
-    border-left: 1px solid rgb(200, 204, 209);
+    border-top: 1px solid var(--border-color-base);
+    border-left: 1px solid var(--border-color-base);
 }
 
 .wiked-lite-tooltip--closing.wiked-lite-tooltip--above
@@ -465,19 +453,20 @@
     top: 0;
     z-index: 1;
     padding: 0.7em 0.85em 0.55em;
-    color: var(--wiked-lite-tooltip-foreground);
+    color: var(--color-emphasized);
     font-size: 1.05em;
     font-weight: 700;
     line-height: 1.3;
-    background: var(--wiked-lite-tooltip-background);
+    background: var(--background-color-base);
     border: 0;
-    border-bottom: 1px solid rgb(234, 236, 240);
+    border-bottom: 1px solid var(--border-color-muted);
 }
 
-.wiked-lite-tooltip__reference {
-    color: rgb(84, 89, 93);
-    font-size: 0.82em;
-    font-weight: normal;
+.wiked-lite-tooltip__citation-title {
+    padding: 0.65em 0.85em 0;
+    color: var(--color-emphasized);
+    font-size: 1em;
+    font-weight: 600;
 }
 
 .wiked-lite-tooltip__body {
@@ -491,7 +480,7 @@
 
 .wiked-lite-tooltip__details {
     padding: 0.7em 0.9em;
-    border-bottom: 1px solid rgb(234, 236, 240);
+    border-bottom: 1px solid var(--border-color-muted);
     overflow-wrap: anywhere;
     white-space: pre-wrap;
 }
@@ -502,13 +491,16 @@
 }
 
 .wiked-lite-tooltip__code {
+    display: inline;
+    color: var(--wiked-lite-foreground);
+    background: var(--wiked-lite-background);
     font-family: monospace;
 }
 
 .wiked-lite-tooltip__missing {
     margin: 0;
     padding: 0.7em 0.9em;
-    color: rgb(84, 89, 93);
+    color: var(--color-subtle);
 }
 
 .wiked-lite-tooltip__row {
@@ -526,8 +518,9 @@
 }
 
 .wiked-lite-tooltip__key {
+    display: inline;
     margin-inline-end: 0.65em;
-    color: var(--wiked-lite-tooltip-foreground);
+    color: var(--color-emphasized);
     font-weight: 600;
     white-space: nowrap;
 }
@@ -537,46 +530,332 @@
 }
 
 .wiked-lite-tooltip__value {
-    color: rgb(84, 89, 93);
+    display: inline;
+    color: var(--wiked-lite-foreground);
     font-family: sans-serif;
     font-weight: normal;
 }
 
-.wiked-lite-tooltip__link {
-    display: inline;
-    color: rgb(51, 102, 204);
-    overflow-wrap: anywhere;
-    cursor: pointer;
+.wiked-lite-tooltip__note {
+    color: var(--wiked-lite-foreground);
+}
+
+.wiked-lite-tooltip__citation-title .wiked-lite-tooltip__add {
+    margin-inline-start: 0.4em;
+    font-weight: normal;
+}
+
+.wiked-lite-tooltip__source-link {
+    color: inherit;
+    cursor: text;
     text-decoration: none;
 }
 
-.wiked-lite-tooltip__link:hover {
-    text-decoration: underline;
-    text-underline-offset: 0.12em;
+.wiked-lite-tooltip__key--modified,
+.wiked-lite-tooltip__value--modified,
+.wiked-lite-tooltip__details--modified,
+.wiked-lite-tooltip__note--modified {
+    background: var(--background-color-progressive-subtle);
+    border-radius: 2px;
+    box-shadow: inset 0 -2px var(--border-color-progressive);
 }
 
-.wiked-lite-tooltip__comment {
-    color: rgb(138, 75, 8);
-    font-style: italic;
+.wiked-lite-tooltip__edit,
+.wiked-lite-tooltip__add {
+    padding: 0.15em 0.3em;
+    border: 0;
+    border-radius: 2px;
+    background: var(--background-color-transparent);
+    color: var(--color-base);
+    font: inherit;
+    text-indent: 0;
+    cursor: pointer;
+}
+
+.wiked-lite-tooltip__edit {
+    margin-inline-start: 0.3em;
+}
+
+.wiked-lite-tooltip__edit:hover:not([aria-disabled="true"]),
+.wiked-lite-tooltip__add:hover:not([aria-disabled="true"]) {
+    background: var(--background-color-button-quiet--hover);
+    color: var(--color-base--hover);
+}
+
+.wiked-lite-tooltip__edit:active:not([aria-disabled="true"]),
+.wiked-lite-tooltip__add:active:not([aria-disabled="true"]) {
+    background: var(--background-color-button-quiet--active);
+    color: var(--color-emphasized);
+}
+
+.wiked-lite-tooltip__duplicate {
+    margin-inline-end: 0.3em;
+    color: var(--color-warning);
+}
+
+.wiked-lite-tooltip__actions {
+    display: inline-block;
+    white-space: nowrap;
+    text-indent: 0;
+}
+
+.wiked-lite-tooltip__icon {
+    display: inline-block;
+    width: 0.85em;
+    height: 0.85em;
+    fill: currentColor;
+    vertical-align: -0.1em;
+}
+
+.wiked-lite-tooltip__icon-rtl,
+.wiked-lite-tooltip__icon:dir(rtl) .wiked-lite-tooltip__icon-ltr {
+    display: none;
+}
+
+.wiked-lite-tooltip__icon:dir(rtl) .wiked-lite-tooltip__icon-rtl {
+    display: inline;
+}
+
+.wiked-lite-tooltip__icon--flip-rtl:dir(rtl) {
+    transform: scaleX(-1);
+}
+
+.wiked-lite-tooltip__add {
+    margin: 0.4em 0.75em 0.7em;
+}
+
+.wiked-lite-tooltip [aria-disabled="true"] {
+    color: var(--color-disabled);
+    cursor: not-allowed;
+}
+
+.wiked-lite-tooltip button:focus-visible,
+.wiked-lite-tooltip__edit-input:focus-visible {
+    outline: 2px solid var(--border-color-progressive--focus);
+    outline-offset: 1px;
+}
+
+.wiked-lite-tooltip__edit-form {
+    padding: 0.6em 0.9em;
+    white-space: normal;
+    text-indent: 0;
+}
+
+.wiked-lite-tooltip__edit-input {
+    display: block;
+    box-sizing: border-box;
+    width: 100%;
+    margin: 0.35em 0 0.7em;
+    border: 1px solid var(--border-color-base);
+    border-radius: 2px;
+    padding: 0.4em;
+    background: var(--background-color-base);
+    color: var(--color-base);
+    font: inherit;
+    font-family: monospace;
+    resize: vertical;
+}
+
+.wiked-lite-tooltip__edit-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5em;
+}
+
+textarea.wiked-lite-tooltip__edit-input {
+    min-height: calc(3.6em + 2px);
+    line-height: 1.4;
+}
+
+.wiked-lite-tooltip__edit-actions button {
+    padding: 0.3em 0.7em;
+    border: 1px solid var(--border-color-base);
+    border-radius: 2px;
+    background: var(--background-color-interactive-subtle);
+    color: var(--color-base);
+    font: inherit;
+    cursor: pointer;
+}
+
+.wiked-lite-tooltip__edit-actions button:hover {
+    background: var(--background-color-interactive-subtle--hover);
+}
+
+.wiked-lite-tooltip__edit-actions button:active {
+    background: var(--background-color-interactive-subtle--active);
+}
+
+.wiked-lite-tooltip__edit-error {
+    color: var(--color-error);
+}
+
+.wiked-lite-tooltip__inline-target {
+    cursor: text;
+}
+
+.wiked-lite-tooltip__inline-target:empty::after {
+    display: inline-block;
+    min-width: 2em;
+    min-height: 1em;
+    content: "";
+}
+
+.wiked-lite-tooltip__inline-target:focus-visible {
+    outline: 2px solid var(--border-color-progressive--focus);
+    outline-offset: 1px;
+}
+
+.wiked-lite-tooltip__inline-add {
+    margin: 0 0 0 0.3em;
+}
+
+.wiked-lite-tooltip__inline-editor {
+    display: inline;
+    background: var(--background-color-progressive-subtle);
+    border-radius: 2px;
+    box-decoration-break: clone;
+}
+
+.wiked-lite-tooltip__row
+    > .wiked-lite-tooltip__inline-editor:not(:first-child) {
+    margin-inline-start: 2em;
+}
+
+.wiked-lite-tooltip__surface > .wiked-lite-tooltip__inline-editor {
+    display: block;
+    padding: 0.7em 0.9em;
+}
+
+.wiked-lite-tooltip__inline-editor > .wiked-lite-tooltip__note {
+    display: inline;
+    padding: 0;
+}
+
+.wiked-lite-tooltip__inline-draft {
+    padding: 0.3em 0.75em;
+    white-space: pre-wrap;
+}
+
+.wiked-lite-tooltip__inline-target[contenteditable] {
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+    outline: none;
+    white-space: pre-wrap;
+}
+
+.wiked-lite-tooltip__inline-target[data-placeholder]:empty::after {
+    content: attr(data-placeholder);
+    color: var(--color-subtle);
+    font-weight: normal;
+}
+
+.wiked-lite-tooltip--lightweight .wiked-lite-tooltip__edit-actions {
+    display: inline;
+    white-space: nowrap;
+}
+
+.wiked-lite-tooltip--lightweight .wiked-lite-tooltip__edit-error:not([hidden]) {
+    display: block;
+    white-space: normal;
+}
+
+.wiked-lite-tooltip--lightweight .wiked-lite-tooltip__edit-actions button,
+.wiked-lite-tooltip--lightweight .wiked-lite-tooltip__inline-edit:not([hidden]),
+.wiked-lite-tooltip--lightweight .wiked-lite-tooltip__inline-add {
+    display: inline;
+    margin: 0;
+    margin-inline-start: 0.3em;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    font: inherit;
+}
+
+.wiked-lite-tooltip--lightweight
+    .wiked-lite-tooltip__edit-actions
+    button:hover:not(:disabled),
+.wiked-lite-tooltip--lightweight
+    .wiked-lite-tooltip__inline-edit:hover:not([aria-disabled="true"]),
+.wiked-lite-tooltip--lightweight
+    .wiked-lite-tooltip__inline-add:hover:not([aria-disabled="true"]) {
+    text-decoration: underline;
+}
+
+.wiked-lite-tooltip__link {
+    display: inline;
+    color: var(--color-link);
+    overflow-wrap: anywhere;
+    cursor: text;
+    text-decoration: none;
 }
 
 .wiked-lite-page-preview {
+    --wiked-lite-page-preview-tail-left: 26px;
+    --wiked-lite-page-preview-bridge-left: 0;
+    --wiked-lite-page-preview-bridge-width: 100%;
+
     position: fixed;
     z-index: 1;
     box-sizing: border-box;
     width: min(330px, calc(100vw - 24px));
+    color: var(--wiked-lite-foreground, rgb(32, 33, 34));
+    font-family: sans-serif;
+    font-size: 0.85rem;
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+    pointer-events: auto;
+}
+
+.wiked-lite-page-preview__surface {
+    box-sizing: border-box;
     max-height: calc(100vh - 24px);
     overflow: auto;
+    overscroll-behavior: contain;
     border: 1px solid rgb(162, 169, 177);
     border-radius: 3px;
     padding: 14px 16px;
     background: var(--wiked-lite-background, white);
     box-shadow: 0 3px 12px rgb(0 0 0 / 16%);
-    color: var(--wiked-lite-foreground, rgb(32, 33, 34));
-    font-family: sans-serif;
-    font-size: 0.85rem;
-    line-height: 1.4;
-    pointer-events: auto;
+}
+
+.wiked-lite-page-preview::before {
+    position: absolute;
+    left: var(--wiked-lite-page-preview-bridge-left);
+    width: var(--wiked-lite-page-preview-bridge-width);
+    height: 10px;
+    content: "";
+}
+
+.wiked-lite-page-preview__tail {
+    position: absolute;
+    left: calc(var(--wiked-lite-page-preview-tail-left) - 6px);
+    box-sizing: border-box;
+    width: 12px;
+    height: 12px;
+    background: var(--wiked-lite-background, white);
+    transform: rotate(45deg);
+}
+
+.wiked-lite-page-preview--above::before {
+    top: 100%;
+}
+
+.wiked-lite-page-preview--below::before {
+    bottom: 100%;
+}
+
+.wiked-lite-page-preview--above .wiked-lite-page-preview__tail {
+    bottom: -5px;
+    border-right: 1px solid rgb(162, 169, 177);
+    border-bottom: 1px solid rgb(162, 169, 177);
+}
+
+.wiked-lite-page-preview--below .wiked-lite-page-preview__tail {
+    top: -5px;
+    border-top: 1px solid rgb(162, 169, 177);
+    border-left: 1px solid rgb(162, 169, 177);
 }
 
 .wiked-lite-page-preview__title {

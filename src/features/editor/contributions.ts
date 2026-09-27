@@ -1,16 +1,15 @@
 /** Optional editor presentation, navigation, and asynchronous previews. */
 
 import type { EditorServices } from "../../app/editor-contracts.ts";
-import {
-    getEditorFeatureSettings,
-    type EditorFeatureSettings,
-} from "../../domain/formatter-settings.ts";
+import type { EditorFeatureSettings } from "../../domain/formatter-settings.ts";
 import { normalizeWikitextTitleKey } from "../../domain/wiki-titles.ts";
 import {
     createEditorFeatureController,
     type EditorFeatureController,
+    type LinkCheckState,
     type MissingLinkResult,
 } from "./feature-settings.ts";
+import type { HighlightOptions } from "../../domain/highlighter.ts";
 import { attachModifiedLinkNavigation } from "./links.ts";
 import { attachPagePreviews } from "./page-preview.ts";
 import { attachReferenceTooltips } from "./reference-tooltip.ts";
@@ -33,16 +32,17 @@ export function createEditorContributions(
     surface: EditorSurface,
     services: EditorServices,
     invalidate: () => void,
+    replace: (start: number, end: number, value: string) => void,
+    initialSettings: EditorFeatureSettings,
 ): EditorContributions {
     const { editor, overlay } = surface;
     const nativeFontSize = editor.style.fontSize || "0.875rem";
-    const initialSettings = getEditorFeatureSettings(
-        services.loadFormatterSettings(),
-    );
     let settings = initialSettings;
     let features: EditorFeatureController | null = null;
     let checkedTitles = new Set<string>();
     let missingTitles = new Set<string>();
+    let pendingMetadataRender = false;
+    let renderedSource: string | null = null;
     const navigation = attachModifiedLinkNavigation(
         editor,
         settings.syntaxHighlighting && settings.ctrlClickLinks,
@@ -51,13 +51,20 @@ export function createEditorContributions(
         delay: window.wikEdLiteConfig?.referenceTooltipDelay,
         editor,
         enabled: false,
+        editingEnabled: settings.referenceEditing,
+        lightweightEditing: settings.referenceLightweightEditing,
         getFallbackSource: () => features?.getReferenceFallbackSource() ?? null,
-        getHighlightOptions: () => ({
-            ...services.getHighlightOptions(),
-            alternateReferenceColors: settings.alternateReferenceColors,
-        }),
+        getHighlightOptions,
+        getLinkCheckState,
         getSource: () => textarea.value,
+        onEditingEnd() {
+            if (pendingMetadataRender) {
+                pendingMetadataRender = false;
+                invalidate();
+            }
+        },
         overlay,
+        replace,
     });
     const pages = attachPagePreviews({
         delay: window.wikEdLiteConfig?.pagePreviewDelay,
@@ -94,7 +101,12 @@ export function createEditorContributions(
                         siteMissingLinkColor(result.linkClasses),
                     );
                 }
-                invalidate();
+                // A background result must not remove an in-progress field draft.
+                if (references.isEditing()) {
+                    pendingMetadataRender = true;
+                } else {
+                    invalidate();
+                }
             },
             onReferencePreviews: references.setEnabled,
             onSmallReferenceText(enabled) {
@@ -112,6 +124,21 @@ export function createEditorContributions(
         throw error;
     }
     const coordinator = features;
+
+    function getHighlightOptions(): HighlightOptions {
+        return {
+            ...services.getHighlightOptions(),
+            alternateReferenceColors: settings.alternateReferenceColors,
+        };
+    }
+
+    function getLinkCheckState(): LinkCheckState {
+        return {
+            checkedTitles,
+            enabled: settings.syntaxHighlighting && settings.highlightMissing,
+            missingTitles,
+        };
+    }
 
     function dismiss(): void {
         references.dismiss();
@@ -133,27 +160,30 @@ export function createEditorContributions(
         dismiss,
         getSettings: () => coordinator.getSettings(),
         render() {
-            dismiss();
+            if (references.isEditing() && renderedSource === textarea.value) {
+                pendingMetadataRender = true;
+                return;
+            }
+            pendingMetadataRender = false;
+            references.beforeRender(renderedSource === textarea.value);
+            pages.dismiss();
             renderSegments(
                 editor,
                 textarea.value,
-                {
-                    checkedTitles,
-                    enabled:
-                        settings.syntaxHighlighting &&
-                        settings.highlightMissing,
-                    missingTitles,
-                },
-                {
-                    ...services.getHighlightOptions(),
-                    alternateReferenceColors: settings.alternateReferenceColors,
-                },
+                getLinkCheckState(),
+                getHighlightOptions(),
                 settings.syntaxHighlighting,
             );
+            renderedSource = textarea.value;
+            references.refresh();
             pages.refresh();
         },
         setSettings(next) {
             settings = { ...next };
+            references.setEditingEnabled(settings.referenceEditing);
+            references.setLightweightEditing(
+                settings.referenceLightweightEditing,
+            );
             coordinator.setSettings(settings);
             navigation.setEnabled(
                 settings.syntaxHighlighting && settings.ctrlClickLinks,
@@ -164,7 +194,8 @@ export function createEditorContributions(
             invalidate();
         },
         sourceChanged() {
-            dismiss();
+            references.sourceChanged();
+            pages.dismiss();
             coordinator.sourceChanged();
         },
     };

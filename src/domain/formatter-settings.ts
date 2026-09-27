@@ -14,6 +14,8 @@ export interface FormatterSettings {
     highlightMissing: boolean;
     largeFont: boolean;
     linkPreviews: boolean;
+    referenceEditing: boolean;
+    referenceLightweightEditing: boolean;
     referencePreviews: boolean;
     resolveRedirects: boolean;
     resolveTemplateRedirects: boolean;
@@ -30,6 +32,8 @@ export type EditorFeatureSettings = Pick<
     | "highlightMissing"
     | "largeFont"
     | "linkPreviews"
+    | "referenceEditing"
+    | "referenceLightweightEditing"
     | "referencePreviews"
     | "smallReferenceText"
     | "syntaxHighlighting"
@@ -56,6 +60,8 @@ export function createDefaultFormatterSettings(): FormatterSettings {
         highlightMissing: false,
         largeFont: false,
         linkPreviews: false,
+        referenceEditing: true,
+        referenceLightweightEditing: false,
         referencePreviews: true,
         resolveRedirects: false,
         resolveTemplateRedirects: false,
@@ -76,6 +82,8 @@ export function getEditorFeatureSettings(
         highlightMissing: settings.highlightMissing,
         largeFont: settings.largeFont,
         linkPreviews: settings.linkPreviews,
+        referenceEditing: settings.referenceEditing,
+        referenceLightweightEditing: settings.referenceLightweightEditing,
         referencePreviews: settings.referencePreviews,
         smallReferenceText: settings.smallReferenceText,
         syntaxHighlighting: settings.syntaxHighlighting,
@@ -150,6 +158,10 @@ function parseEditorFeatures(
         typeof value.highlightMissing !== "boolean" ||
         typeof value.largeFont !== "boolean" ||
         typeof value.linkPreviews !== "boolean" ||
+        (value.referenceEditing !== undefined &&
+            typeof value.referenceEditing !== "boolean") ||
+        (value.referenceLightweightEditing !== undefined &&
+            typeof value.referenceLightweightEditing !== "boolean") ||
         typeof value.referencePreviews !== "boolean" ||
         typeof value.resolveRedirects !== "boolean" ||
         typeof value.resolveTemplateRedirects !== "boolean" ||
@@ -170,6 +182,10 @@ function parseEditorFeatures(
         highlightMissing: value.highlightMissing,
         largeFont: value.largeFont,
         linkPreviews: value.linkPreviews,
+        // Keep tooltip editing enabled for configurations saved before its toggle.
+        referenceEditing: value.referenceEditing !== false,
+        // The optional inline interaction remains off in older configurations.
+        referenceLightweightEditing: value.referenceLightweightEditing === true,
         referencePreviews: value.referencePreviews,
         resolveRedirects: value.resolveRedirects,
         resolveTemplateRedirects: value.resolveTemplateRedirects,

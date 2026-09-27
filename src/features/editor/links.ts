@@ -9,6 +9,18 @@ interface LinkNavigationController {
     setEnabled(enabled: boolean): void;
 }
 
+/** Gives displayed source anchors the same modifier as links in the editor. */
+export function handleSourceLinkClick(
+    event: MouseEvent,
+    link: HTMLAnchorElement,
+): void {
+    const shouldOpen = isModifiedClick(event) && !hasSelection(link);
+    event.preventDefault();
+    if (shouldOpen) {
+        window.open(link.href, "_blank", "noopener,noreferrer");
+    }
+}
+
 /** Attaches link navigation while preserving native selection. */
 export function attachModifiedLinkNavigation(
     editor: HTMLElement,

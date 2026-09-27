@@ -32,8 +32,14 @@ import {
 import {
     type HighlightRange as DecoratedRange,
     type HighlightSegment,
+    mergeSourceRanges,
     partitionHighlightRanges,
 } from "./highlight-partition.ts";
+import {
+    createReferenceHighlighting,
+    createReferenceTemplateDecoration,
+    type ReferenceHighlighting,
+} from "./reference-highlighting.ts";
 
 export type { HighlightSegment } from "./highlight-partition.ts";
 
@@ -64,30 +70,14 @@ interface CssScanState {
     quote: string;
 }
 
-interface ReferenceNestingContext {
-    referenceBodies: SourceRange[];
-    resetRegions: SourceRange[];
-}
-
-interface ReferenceColorUnit extends SourceRange {
-    kind: "paired-tag" | "self-closing-tag" | "template";
-}
-
 interface TemplateDecorationContext {
     databaseName: string;
     linkHelpersEnabled: boolean;
     namespaceSource: NamespaceSource;
-    referenceNesting: ReferenceNestingContext;
+    references: ReferenceHighlighting;
     templateMagicWords: TemplateMagicWordCatalog | null;
-    templates: ParsedTemplateCall[];
 }
 
-interface TemplateNestingRegion extends SourceRange {
-    baseDepth: number;
-}
-
-const REFERENCE_TEMPLATE_NAMES = new Set(["r", "sfn"]);
-const EFN_PATTERN = /^efn(?:$|[- /])/u;
 const LINK_HELPER_PATTERN = /^(?:tsl|translink|link-[a-z0-9-]+)$/u;
 const CSS_PROPERTY_NAME_PATTERN = /^(?:--|-(?!-))?[_\p{L}][-\p{L}\p{N}_]*$/u;
 const TAG_ATTRIBUTE_PATTERN =
@@ -209,31 +199,34 @@ export function highlightWikitext(
         (typeof namespaceSource === "string"
             ? namespaceSource
             : namespaceSource.databaseName);
-    const referenceNesting = createReferenceNestingContext(
+    const query = createHighlightQuery(source);
+    const tags = query.tag.getAll();
+    const templateNames = new Map(
+        query.template
+            .getAll()
+            .map((template) => [
+                template,
+                normalizeCurrentTemplateName(template.name, namespaceSource),
+            ]),
+    );
+    const references = createReferenceHighlighting(
         source,
-        namespaceSource,
+        tags,
+        templateNames,
+        options.alternateReferenceColors === true,
     );
     const ranges = [
-        ...createOpaqueDecorations(source),
-        ...createTagDecorations(source),
+        ...createOpaqueDecorations(source, tags),
+        ...createTagDecorations(source, tags),
         ...createWikitableDecorations(source),
-        ...createTemplateDecorations(
-            source,
-            linkHelpers,
+        ...createTemplateDecorations(source, templateNames, {
             databaseName,
-            referenceNesting,
+            linkHelpersEnabled: linkHelpers,
             namespaceSource,
-            options.templateMagicWords ?? null,
-        ),
-        ...createReferenceNestingDecorations(referenceNesting),
-        ...createReferenceDecorations(source, referenceNesting),
-        ...(options.alternateReferenceColors === true
-            ? createAlternateReferenceDecorations(
-                  source,
-                  referenceNesting,
-                  namespaceSource,
-              )
-            : []),
+            references,
+            templateMagicWords: options.templateMagicWords ?? null,
+        }),
+        ...references.decorations,
         ...createLinkDecorations(
             source,
             namespaceSource,
@@ -279,185 +272,6 @@ export function collectLinkHelperTitles(
     return [...new Set(titles)];
 }
 
-function createReferenceNestingContext(
-    source: string,
-    namespaceSource: NamespaceSource,
-): ReferenceNestingContext {
-    const query = createHighlightQuery(source);
-    const nativeRegions = query.tag
-        .getAll("references")
-        .filter((tag) => !tag.selfClosing)
-        .map((tag) => ({ end: tag.contentEnd, start: tag.contentStart }));
-    const templateRegions = getReferenceTemplateRegions(
-        query.template.getAll(),
-        namespaceSource,
-    );
-    const resetRegions = [...nativeRegions, ...templateRegions].filter(
-        (region) => region.start < region.end,
-    );
-    const definitionTags = query.tag
-        .getAll("ref")
-        .filter((tag) =>
-            resetRegions.some((region) => containsRange(region, tag)),
-        );
-    const referenceBodies = definitionTags
-        .filter((tag) => !tag.selfClosing && tag.contentStart < tag.contentEnd)
-        .map((tag) => ({ end: tag.contentEnd, start: tag.contentStart }));
-    return { referenceBodies, resetRegions };
-}
-
-function getReferenceTemplateRegions(
-    templates: ParsedTemplateCall[],
-    namespaceSource: NamespaceSource,
-): SourceRange[] {
-    return templates
-        .filter(
-            (template) =>
-                normalizeCurrentTemplateName(template.name, namespaceSource) ===
-                "reflist",
-        )
-        .flatMap((template) =>
-            template.params
-                .filter(
-                    (parameter) =>
-                        !parameter.positional &&
-                        /^(?:list|refs)$/iu.test(parameter.name),
-                )
-                .map((parameter) => ({
-                    end: parameter.valueEnd,
-                    start: parameter.valueStart,
-                })),
-        );
-}
-
-function createReferenceNestingDecorations(
-    context: ReferenceNestingContext,
-): DecoratedRange[] {
-    const referenceBodies = context.referenceBodies.flatMap((range) =>
-        subtractDecoratedRanges(
-            {
-                ...range,
-                className: "wiked-lite-token--template-1",
-                priority: 30,
-            },
-            context.resetRegions.filter(
-                (region) =>
-                    region.start < range.end &&
-                    range.start < region.end &&
-                    !containsRange(region, range),
-            ),
-        ),
-    );
-    return [
-        ...context.resetRegions.map((range) => ({
-            ...range,
-            className: "wiked-lite-token--template-0",
-            priority: 29,
-        })),
-        ...referenceBodies,
-    ];
-}
-
-function createReferenceDecorations(
-    source: string,
-    context: ReferenceNestingContext,
-): DecoratedRange[] {
-    const query = createHighlightQuery(source);
-    return query.tag
-        .getAll("ref")
-        .filter(
-            (tag) =>
-                !context.resetRegions.some((region) =>
-                    containsRange(region, tag),
-                ),
-        )
-        .map(function decorate(tag) {
-            const end = tag.closed ? tag.end : tag.contentStart;
-            return {
-                className: "wiked-lite-token--reference",
-                end,
-                priority: 80,
-                referenceSource: source.slice(tag.start, end),
-                start: tag.start,
-            };
-        });
-}
-
-function containsRange(outer: SourceRange, inner: SourceRange): boolean {
-    return outer.start <= inner.start && inner.end <= outer.end;
-}
-
-function createAlternateReferenceDecorations(
-    source: string,
-    context: ReferenceNestingContext,
-    namespaceSource: NamespaceSource,
-): DecoratedRange[] {
-    const query = createHighlightQuery(source);
-    const units: ReferenceColorUnit[] = [
-        ...query.tag
-            .getAll("ref")
-            .filter((tag) => tag.closed)
-            .map((tag) => ({
-                end: tag.end,
-                kind: tag.selfClosing
-                    ? ("self-closing-tag" as const)
-                    : ("paired-tag" as const),
-                start: tag.start,
-            })),
-        ...query.template
-            .getAll()
-            .filter((template) => {
-                const name = normalizeCurrentTemplateName(
-                    template.name,
-                    namespaceSource,
-                );
-                return (
-                    REFERENCE_TEMPLATE_NAMES.has(name) || EFN_PATTERN.test(name)
-                );
-            })
-            .map((template) => ({
-                end: template.end,
-                kind: "template" as const,
-                start: template.start,
-            })),
-    ]
-        .filter((unit) => !isInsideRange(unit, context.resetRegions))
-        .sort(
-            (left, right) => left.start - right.start || right.end - left.end,
-        );
-    const ranges: DecoratedRange[] = [];
-    let previous: ReferenceColorUnit | undefined;
-    let alternate = false;
-    for (const unit of units) {
-        if (previous != null && unit.start < previous.end) {
-            // Nested reference markup shares the containing reference's color.
-            continue;
-        }
-        const consecutive =
-            previous != null &&
-            /^\s*$/u.test(source.slice(previous.end, unit.start));
-        const joinsPrevious =
-            previous?.kind === "self-closing-tag" &&
-            unit.kind === "template" &&
-            previous.end === unit.start;
-        alternate = consecutive
-            ? joinsPrevious
-                ? alternate
-                : !alternate
-            : false;
-        if (alternate) {
-            ranges.push({
-                className: "wiked-lite-token--reference-alternate",
-                end: unit.end,
-                priority: 79,
-                start: unit.start,
-            });
-        }
-        previous = unit;
-    }
-    return ranges;
-}
-
 function trimSourceRange(
     source: string,
     initialStart: number,
@@ -474,10 +288,12 @@ function trimSourceRange(
     return { end, start };
 }
 
-function createOpaqueDecorations(source: string): DecoratedRange[] {
+function createOpaqueDecorations(
+    source: string,
+    tags: WikitextTag[],
+): DecoratedRange[] {
     const query = createHighlightQuery(source);
-    const literalRanges = query.tag
-        .getAll()
+    const literalRanges = tags
         .filter((tag) => tag.protectedContent)
         .map(function decorate(tag) {
             return {
@@ -507,8 +323,10 @@ function isInsideRange(inner: SourceRange, ranges: SourceRange[]): boolean {
     );
 }
 
-function createTagDecorations(source: string): DecoratedRange[] {
-    const tags = createHighlightQuery(source).tag.getAll();
+function createTagDecorations(
+    source: string,
+    tags: WikitextTag[],
+): DecoratedRange[] {
     const ancestors: SourceRange[] = [];
     const ranges: DecoratedRange[] = [];
     for (const tag of tags) {
@@ -528,7 +346,11 @@ function removeCompletedTagAncestors(
 ): void {
     while (ancestors.length > 0) {
         const parent = ancestors.at(-1);
-        if (parent != null && containsRange(parent, tag)) {
+        if (
+            parent != null &&
+            parent.start <= tag.start &&
+            tag.end <= parent.end
+        ) {
             return;
         }
         ancestors.pop();
@@ -920,40 +742,21 @@ function consumeCssProtectedSequence(
 
 function createTemplateDecorations(
     source: string,
-    linkHelpersEnabled: boolean,
-    databaseName: string,
-    referenceNesting: ReferenceNestingContext,
-    namespaceSource: NamespaceSource,
-    templateMagicWords: TemplateMagicWordCatalog | null,
+    templateNames: ReadonlyMap<ParsedTemplateCall, string>,
+    context: TemplateDecorationContext,
 ): DecoratedRange[] {
-    const templates = createHighlightQuery(source).template.getAll();
-    const context = {
-        databaseName,
-        linkHelpersEnabled,
-        namespaceSource,
-        referenceNesting,
-        templateMagicWords,
-        templates,
-    };
-    return templates.flatMap((template) =>
-        decorateTemplate(source, template, context),
+    return [...templateNames].flatMap(([template, name]) =>
+        decorateTemplate(source, template, name, context),
     );
 }
 
 function decorateTemplate(
     source: string,
     template: ParsedTemplateCall,
+    name: string,
     context: TemplateDecorationContext,
 ): DecoratedRange[] {
-    const name = normalizeCurrentTemplateName(
-        template.name,
-        context.namespaceSource,
-    );
-    const depth = getEffectiveTemplateDepth(
-        template,
-        context.templates,
-        context.referenceNesting,
-    );
+    const depth = context.references.getTemplateDepth(template);
     const linkHelperEnabled =
         context.linkHelpersEnabled || name === "tsl" || name === "translink";
     const ranges = [
@@ -976,10 +779,7 @@ function decorateTemplate(
             context.linkHelpersEnabled,
         ),
     ];
-    return clipOuterTemplateDecorations(ranges, template, [
-        ...context.referenceNesting.resetRegions,
-        ...context.referenceNesting.referenceBodies,
-    ]);
+    return context.references.clipTemplateDecorations(template, ranges);
 }
 
 function createTemplateMainDecoration(
@@ -988,15 +788,16 @@ function createTemplateMainDecoration(
     depth: number,
     context: TemplateDecorationContext,
 ): DecoratedRange {
-    return {
-        end: template.end,
-        start: template.start,
-        className: getTemplateClass(name, depth, context.databaseName),
-        priority: 30 + depth,
-        referenceSource: REFERENCE_TEMPLATE_NAMES.has(name)
-            ? template.raw
-            : undefined,
-    };
+    return (
+        createReferenceTemplateDecoration(template, name, depth) ?? {
+            end: template.end,
+            start: template.start,
+            className: isImageTemplate(name, context.databaseName)
+                ? "wiked-lite-token--image-template"
+                : `wiked-lite-token--template-${Math.min(depth, 4)}`,
+            priority: 30 + depth,
+        }
+    );
 }
 
 function getTemplateTitle(
@@ -1038,86 +839,6 @@ function normalizeCurrentTemplateName(
         .trim()
         .replace(/\s+/gu, " ")
         .toLowerCase();
-}
-
-function getEffectiveTemplateDepth(
-    template: ParsedTemplateCall,
-    templates: ParsedTemplateCall[],
-    context: ReferenceNestingContext,
-): number {
-    const nesting = findInnermostTemplateNestingRegion(template, context);
-    if (nesting == null) {
-        return template.depth;
-    }
-    const ancestors = templates.filter(
-        (candidate) =>
-            candidate !== template &&
-            containsRange(nesting, candidate) &&
-            candidate.start < template.start &&
-            template.end < candidate.end,
-    );
-    return nesting.baseDepth + ancestors.length;
-}
-
-function findInnermostTemplateNestingRegion(
-    inner: SourceRange,
-    context: ReferenceNestingContext,
-): TemplateNestingRegion | undefined {
-    const regions = [
-        ...context.resetRegions.map((range) => ({ ...range, baseDepth: 0 })),
-        ...context.referenceBodies.map((range) => ({
-            ...range,
-            baseDepth: 1,
-        })),
-    ];
-    return regions
-        .filter((range) => containsRange(range, inner))
-        .toSorted(
-            (left, right) => left.end - left.start - (right.end - right.start),
-        )[0];
-}
-
-function clipOuterTemplateDecorations(
-    ranges: DecoratedRange[],
-    template: ParsedTemplateCall,
-    resetRegions: SourceRange[],
-): DecoratedRange[] {
-    const childRegions = resetRegions.filter(
-        (region) =>
-            region.start < template.end &&
-            template.start < region.end &&
-            !containsRange(region, template),
-    );
-    if (childRegions.length === 0) {
-        return ranges;
-    }
-    return ranges.flatMap((range) =>
-        subtractDecoratedRanges(range, childRegions),
-    );
-}
-
-function subtractDecoratedRanges(
-    range: DecoratedRange,
-    exclusions: SourceRange[],
-): DecoratedRange[] {
-    let pieces = [range];
-    for (const exclusion of mergeSourceRanges(exclusions)) {
-        pieces = pieces.flatMap(function subtract(piece) {
-            if (piece.end <= exclusion.start || exclusion.end <= piece.start) {
-                return [piece];
-            }
-            const before =
-                piece.start < exclusion.start
-                    ? [{ ...piece, end: exclusion.start }]
-                    : [];
-            const after =
-                exclusion.end < piece.end
-                    ? [{ ...piece, start: exclusion.end }]
-                    : [];
-            return [...before, ...after];
-        });
-    }
-    return pieces;
 }
 
 function createTemplateDelimiterDecorations(
@@ -1365,23 +1086,6 @@ function getModuleHref(
     }
     const title = `${prefix}:${value}`;
     return `/wiki/${encodeTitle(title)}`;
-}
-
-function getTemplateClass(
-    name: string,
-    depth: number,
-    databaseName: string,
-): string {
-    if (REFERENCE_TEMPLATE_NAMES.has(name)) {
-        return "wiked-lite-token--reference";
-    }
-    if (EFN_PATTERN.test(name)) {
-        return "wiked-lite-token--footnote";
-    }
-    if (isImageTemplate(name, databaseName)) {
-        return "wiked-lite-token--image-template";
-    }
-    return `wiked-lite-token--template-${Math.min(depth, 4)}`;
 }
 
 function isImageTemplate(name: string, databaseName: string): boolean {
@@ -1878,6 +1582,10 @@ function createLinkTextDecoration(
               : targetRange;
     return {
         className: "wiked-lite-token--link-text",
+        missingTitle:
+            namespaceId !== 6 && namespaceId !== 14 && parts.length > 1
+                ? normalizeMissingTitle(targetRange?.value.trim() ?? "")
+                : undefined,
         end:
             displayRange == null ? contentEnd : contentStart + displayRange.end,
         priority: 21,
@@ -2266,15 +1974,7 @@ function createEmphasisDecorations(source: string): DecoratedRange[] {
     const protectedRanges = mergeSourceRanges([
         ...query.comment.getAll(),
         ...query.opaque.getAll(),
-        ...query.tag.getAll().flatMap(function protectTagMarkup(tag) {
-            const ranges: SourceRange[] = [
-                { end: tag.contentStart, start: tag.start },
-            ];
-            if (tag.contentEnd < tag.end) {
-                ranges.push({ end: tag.end, start: tag.contentEnd });
-            }
-            return ranges;
-        }),
+        ...createTagMarkupRanges(source),
         ...createTemplateEmphasisExclusions(source, query.template.getAll()),
         ...createLinkEmphasisExclusions(source, query.link.getAll()),
     ]);
@@ -2343,22 +2043,6 @@ function createLinkEmphasisExclusions(
                   },
               ];
     });
-}
-
-function mergeSourceRanges(ranges: SourceRange[]): SourceRange[] {
-    const merged: SourceRange[] = [];
-    const sorted = ranges
-        .filter((range) => range.start < range.end)
-        .toSorted((left, right) => left.start - right.start);
-    for (const range of sorted) {
-        const previous = merged.at(-1);
-        if (previous == null || previous.end < range.start) {
-            merged.push({ ...range });
-        } else {
-            previous.end = Math.max(previous.end, range.end);
-        }
-    }
-    return merged;
 }
 
 function decorateEmphasisMarker(

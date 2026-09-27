@@ -414,20 +414,21 @@ test("alternating reference colors group a reused reference with its following h
         source,
         segments,
         second,
-        "wiked-lite-token--reference-alternate",
+        "wiked-lite-token--reference-blue",
     );
-    assertEachLacksClass(
+    assertEachHasClass(
         source,
         segments,
         [first, third],
-        "wiked-lite-token--reference-alternate",
+        "wiked-lite-token--reference-pink",
     );
     assert.equal(segments.map((segment) => segment.text).join(""), source);
     assert.deepEqual(
         segments.map((segment) => ({
             ...segment,
             classNames: segment.classNames.filter(
-                (name) => name !== "wiked-lite-token--reference-alternate",
+                (name) =>
+                    !/^wiked-lite-token--reference-(?:pink|blue)$/u.test(name),
             ),
         })),
         highlightWikitext(source),
@@ -446,23 +447,19 @@ test("alternating reference colors are disabled unless explicitly enabled", () =
     assert.ok(
         segments.every(
             (segment) =>
-                !segment.classNames.includes(
-                    "wiked-lite-token--reference-alternate",
+                !segment.classNames.some((name) =>
+                    /^wiked-lite-token--reference-(?:pink|blue)$/u.test(name),
                 ),
         ),
     );
 });
 
-test("adjacent reference tags and current-wiki reference templates alternate across whitespace", () => {
+test("adjacent reference tags and current-wiki citation templates alternate across whitespace", () => {
     const references = [
         "<ref>First</ref>",
         "{{Vorlage:R|second}}",
         "{{sfn|Third}}",
-        "{{efn|Fourth}}",
-        "{{efn-lr|Fifth}}",
-        "{{efn_la|Sixth}}",
-        "{{efn/sub|Seventh}}",
-        '<ref name="eighth" />',
+        '<ref name="fourth" />',
     ];
     const source = references.join(" \n");
     const segments = highlightWikitext(source, {
@@ -471,19 +468,198 @@ test("adjacent reference tags and current-wiki reference templates alternate acr
     });
 
     references.forEach((reference, index) => {
-        assert.equal(
-            classesAt(source, segments, reference).includes(
-                "wiked-lite-token--reference-alternate",
-            ),
-            index % 2 === 1,
+        assertRangeHasClass(
+            source,
+            segments,
+            reference,
+            `wiked-lite-token--reference-${index % 2 === 1 ? "blue" : "pink"}`,
         );
     });
     assertLacksClass(
         source,
         segments,
         " \n",
-        "wiked-lite-token--reference-alternate",
+        "wiked-lite-token--reference-blue",
     );
+});
+
+test("reference runs alternate pink and blue starting with pink", () => {
+    const fixtures = [
+        {
+            units: ["<ref/>", "<ref/>", "<ref/>"],
+            palettes: ["pink", "blue", "pink"],
+        },
+        {
+            units: ["{{r|First}}", "{{sfn|Second}}", "{{sfn|Third}}"],
+            palettes: ["pink", "blue", "pink"],
+        },
+        {
+            units: ["<ref>First</ref>", "<ref>Second {{efn|Nested}}</ref>"],
+            palettes: ["pink", "blue"],
+        },
+    ];
+    for (const { units, palettes } of fixtures) {
+        const source = units.join("");
+        const segments = highlightWikitext(source, {
+            alternateReferenceColors: true,
+        });
+        let start = 0;
+        units.forEach((unit, index) => {
+            const end = start + unit.length;
+            const unitSegments = segments.filter(
+                (segment) => segment.start >= start && segment.end <= end,
+            );
+            assert.ok(unitSegments.length > 0);
+            for (const segment of unitSegments) {
+                assert.deepEqual(
+                    segment.classNames.filter((name) =>
+                        /^wiked-lite-token--reference-(?:pink|blue)$/u.test(
+                            name,
+                        ),
+                    ),
+                    [`wiked-lite-token--reference-${palettes[index]}`],
+                    source,
+                );
+            }
+            start = end;
+        });
+        assert.equal(segments.map((segment) => segment.text).join(""), source);
+    }
+});
+
+test("explanatory notes retain template shading and small text without joining reference color runs", () => {
+    for (const name of [
+        "efn",
+        "Efn",
+        "Vorlage:Efn",
+        "efn-lr",
+        "efn_la",
+        "efn/sub",
+    ]) {
+        const note = `{{${name}|Note {{lang|en|Nested}}}}`;
+        const source = `<ref>Before</ref>${note}<ref>After</ref>`;
+        for (const alternateReferenceColors of [false, true]) {
+            const segments = highlightWikitext(source, {
+                alternateReferenceColors,
+                namespaceSource: EXAMPLE_NAMESPACE_CATALOG,
+            });
+
+            assertRangeHasClass(
+                source,
+                segments,
+                note,
+                "wiked-lite-token--footnote",
+            );
+            assertRangeHasClass(
+                source,
+                segments,
+                note,
+                "wiked-lite-token--template-0",
+            );
+            assertHasClass(
+                source,
+                segments,
+                "Nested",
+                "wiked-lite-token--template-1",
+            );
+            for (const className of [
+                "wiked-lite-token--reference",
+                "wiked-lite-token--reference-pink",
+                "wiked-lite-token--reference-blue",
+            ]) {
+                assert.ok(
+                    segments
+                        .filter(
+                            (segment) =>
+                                segment.start >= source.indexOf(note) &&
+                                segment.end <=
+                                    source.indexOf(note) + note.length,
+                        )
+                        .every(
+                            (segment) =>
+                                !segment.classNames.includes(className),
+                        ),
+                    name,
+                );
+            }
+            if (alternateReferenceColors) {
+                assertEachHasClass(
+                    source,
+                    segments,
+                    ["Before", "After"],
+                    "wiked-lite-token--reference-pink",
+                );
+            }
+            assert.equal(
+                segments.map((segment) => segment.text).join(""),
+                source,
+            );
+        }
+    }
+});
+
+test("consecutive references inside an explanatory note alternate independently of surrounding citations", () => {
+    const references = [
+        "<ref>{{Cite web|title=琉加|url=https://example.test/fighter|language=zh-Hans}}</ref>",
+        '<ref name=":2" details="{{URL|https://archive.test/2006|地球冒险3}}. 攻略人行道 :90-93" />',
+        '<ref name="UCG" details="阿修罗. {{url|https://archive.test/UCG|Mother3 攻略透解}} :58-63" />',
+        '<ref name=":1" details="张永. {{url|https://archive.test/pocketgamer|地球冒险3}}. 极上攻略 :58-63" />',
+        '<ref name=":3" />',
+        "<ref>{{Cite journal|author=张永|title=地球冒险3 接上期|page=78-83}}</ref>",
+    ];
+    const source =
+        '<ref>Previous</ref><ref name="DREAM" details="{{URL|https://archive.test/interview|55億年後になくなる地球}}" />' +
+        `{{efn|部分游戏内容译名综合参考自以下来源：${references.join("")}}}<ref>After</ref>`;
+    const segments = highlightWikitext(source, {
+        alternateReferenceColors: true,
+    });
+
+    assertHasClass(
+        source,
+        segments,
+        'name="DREAM"',
+        "wiked-lite-token--reference-blue",
+    );
+    assertHasClass(
+        source,
+        segments,
+        "部分游戏内容",
+        "wiked-lite-token--template-0",
+    );
+    references.forEach((reference, index) => {
+        const palette = index % 2 === 0 ? "pink" : "blue";
+        assertRangeHasClass(
+            source,
+            segments,
+            reference,
+            `wiked-lite-token--reference-${palette}`,
+        );
+        const start = source.indexOf(reference);
+        const referenceSegments = segments.filter(
+            (segment) =>
+                segment.start >= start &&
+                segment.end <= start + reference.length,
+        );
+        for (const segment of referenceSegments) {
+            assert.equal(segment.referenceSource, reference);
+            assert.equal(segment.referenceStart, start);
+            assert.ok(
+                segment.classNames.includes("wiked-lite-token--footnote"),
+            );
+            assert.ok(
+                !segment.classNames.includes(
+                    `wiked-lite-token--reference-${palette === "pink" ? "blue" : "pink"}`,
+                ),
+            );
+        }
+    });
+    assertHasClass(
+        source,
+        segments,
+        "After",
+        "wiked-lite-token--reference-pink",
+    );
+    assert.equal(segments.map((segment) => segment.text).join(""), source);
 });
 
 test("only the helper immediately after a self-closing tag joins its group", () => {
@@ -497,13 +673,13 @@ test("only the helper immediately after a self-closing tag joins its group", () 
         source,
         segments,
         ['<ref name="reuse"/>', "{{sfn|joined}}", '<ref name="fourth" />'],
-        "wiked-lite-token--reference-alternate",
+        "wiked-lite-token--reference-blue",
     );
-    assertEachLacksClass(
+    assertEachHasClass(
         source,
         segments,
         ["First", "{{sfn|third}}", "{{sfn|fifth}}"],
-        "wiked-lite-token--reference-alternate",
+        "wiked-lite-token--reference-pink",
     );
 });
 
@@ -524,13 +700,25 @@ test("reference color runs restart after article text, comments and literal tags
             source,
             segments,
             ["Second", "Fourth"],
-            "wiked-lite-token--reference-alternate",
+            "wiked-lite-token--reference-blue",
         );
-        assertEachLacksClass(
+        assertEachHasClass(
             source,
             segments,
-            ["First", "Third", separator],
-            "wiked-lite-token--reference-alternate",
+            ["First", "Third"],
+            "wiked-lite-token--reference-pink",
+        );
+        assertLacksClass(
+            source,
+            segments,
+            separator,
+            "wiked-lite-token--reference-blue",
+        );
+        assertLacksClass(
+            source,
+            segments,
+            separator,
+            "wiked-lite-token--reference-pink",
         );
     }
 });
@@ -546,13 +734,13 @@ test("nested references share the outer color while opaque content keeps its pal
         source,
         segments,
         ["Second", "cite web", "sfn|nested", "Note", "Inner"],
-        "wiked-lite-token--reference-alternate",
+        "wiked-lite-token--reference-blue",
     );
     assertEachLacksClass(
         source,
         segments,
         ["First", "comment", "sfn|literal", "sfn|Third"],
-        "wiked-lite-token--reference-alternate",
+        "wiked-lite-token--reference-blue",
     );
     assertHasClass(source, segments, "comment", "wiked-lite-token--comment");
     assertHasClass(source, segments, "sfn|literal", "wiked-lite-token--nowiki");
@@ -568,8 +756,8 @@ test("list-defined references do not participate in alternating inline reference
     assert.ok(
         segments.every(
             (segment) =>
-                !segment.classNames.includes(
-                    "wiked-lite-token--reference-alternate",
+                !segment.classNames.some((name) =>
+                    /^wiked-lite-token--reference-(?:pink|blue)$/u.test(name),
                 ),
         ),
     );
@@ -2543,6 +2731,25 @@ test("nested citations keep citation preview metadata", () => {
     }
 });
 
+test("identical reference occurrences keep their own editable source offsets", () => {
+    const citations = [
+        "<ref>{{cite web|title=Same}}</ref>",
+        "{{sfn|Same|2026}}",
+    ];
+    for (const citation of citations) {
+        const source = `${citation} and ${citation}`;
+        const segments = highlightWikitext(source);
+        const starts = [0, citation.length + " and ".length];
+        for (const start of starts) {
+            const segment = segments.find(
+                (candidate) => candidate.start === start,
+            );
+            assert.equal(segment?.referenceSource, citation);
+            assert.equal(segment?.referenceStart, start);
+        }
+    }
+});
+
 test("emphasis is limited to template values and wikilink labels", () => {
     const source = [
         "{{''template''|''name''=value|body=''shown''}}",
@@ -2617,7 +2824,7 @@ test("template parameters nested in tables remain parameter tokens", () => {
     );
 });
 
-test("missing-link metadata covers only wikilink target text", () => {
+test("missing-link metadata covers wikilink targets and aliases without syntax", () => {
     const source = "[[品田昭子]] [[Target|label]]";
     const segments = highlightWikitext(source);
 
@@ -2629,7 +2836,7 @@ test("missing-link metadata covers only wikilink target text", () => {
     assert.equal(segmentAt(source, segments, "]] ")?.missingTitle, undefined);
     assert.equal(segmentAt(source, segments, "Target")?.missingTitle, "Target");
     assert.equal(segmentAt(source, segments, "|")?.missingTitle, undefined);
-    assert.equal(segmentAt(source, segments, "label")?.missingTitle, undefined);
+    assert.equal(segmentAt(source, segments, "label")?.missingTitle, "Target");
 });
 
 test("missing-link metadata ignores fragments and leading colons", () => {
@@ -2640,7 +2847,7 @@ test("missing-link metadata ignores fragments and leading colons", () => {
         segmentAt(source, segments, "品田昭子#生平")?.missingTitle,
         "品田昭子",
     );
-    assert.equal(segmentAt(source, segments, "人物")?.missingTitle, undefined);
+    assert.equal(segmentAt(source, segments, "人物")?.missingTitle, "品田昭子");
 });
 
 test("missing links exclude label markup and non-label options", () => {
@@ -2656,7 +2863,7 @@ test("missing links exclude label markup and non-label options", () => {
         segmentAt(source, segments, "Missing")?.missingTitle,
         "Missing",
     );
-    assert.equal(segmentAt(source, segments, "label")?.missingTitle, undefined);
+    assert.equal(segmentAt(source, segments, "label")?.missingTitle, "Missing");
     assert.equal(
         segmentAt(source, segments, "File:Missing.svg")?.missingTitle,
         "File:Missing.svg",
@@ -2667,6 +2874,18 @@ test("missing links exclude label markup and non-label options", () => {
         "Category:Missing",
     );
     assert.equal(segmentAt(source, segments, "sort")?.missingTitle, undefined);
+});
+
+test("wikilink aliases retain bold link text and the target href for shared rendering", () => {
+    const source = "[[Airi|艾莉]]";
+    const segments = highlightWikitext(source);
+    const alias = segmentAt(source, segments, "艾莉");
+
+    assert.equal(alias?.missingTitle, "Airi");
+    assert.equal(alias?.href, "/wiki/Airi");
+    assert.ok(alias?.classNames.includes("wiked-lite-token--link"));
+    assert.ok(alias?.classNames.includes("wiked-lite-token--link-text"));
+    assert.equal(segments.map((segment) => segment.text).join(""), source);
 });
 
 test("large sparse sources retain highlighting past the former limit", () => {

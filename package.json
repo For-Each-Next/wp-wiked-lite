@@ -1,6 +1,6 @@
 {
     "name": "wiked-lite",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "description": "Highlight and format wikitext in MediaWiki source editors.",
     "private": true,
     "license": "CC0-1.0",
@@ -25,6 +25,7 @@
         "@types/node": "^24.19.0",
         "@vue/compiler-sfc": "^3.5.13",
         "@wikimedia/codex": "^2.6.0",
+        "@wikimedia/codex-icons": "2.7.0",
         "esbuild": "^0.28.0",
         "eslint": "10.11.0",
         "globals": "17.12.0",

@@ -5,7 +5,17 @@ highlighting, text size, and optional lookups; **Formatting** changes source tex
 The primary action accepts settings for the current edit. Cancel, close, and
 Escape discard unapplied drafts.
 
-Under **Other content models**, **Use CodeMirror for other content models** is
+Highlighting settings has four groups, in order: **Syntax highlighting**,
+**Text and colors**, **Links**, and **Reference popups**. The first group selects
+wikEd Lite for wikitext and CodeMirror for other content models. The remaining
+groups control wikEd Lite's display and inspection features.
+
+Turning off **Use wikEd Lite to highlight wikitext pages** removes its editor
+frame and restores the native textarea. The three display groups are disabled,
+including larger text, while retaining their preferences. Applying the option
+again restores the enhanced editor with those preferences and the current source.
+
+Under **Syntax highlighting**, **Use CodeMirror for other content models** is
 off by default. wikEd Lite enhances only wikitext; when this setting is off, it
 loads no enhanced editor for other models. Turn it on and use **More → Save
 settings** to load [CodeMirror](https://www.mediawiki.org/wiki/Extension:CodeMirror)
@@ -36,14 +46,17 @@ and ambiguous or dynamic syntax remain protected. **Format language conversion
 rules** is available only on zhwiki and covers inline `-{...}-` rules and
 page-wide manual `NoteTA` rules.
 
-Under **References**, **Alternate colors for consecutive references** is off by
-default. Enable it to give every second reference group a darker highlight
-background. Text colors stay unchanged. For example,
+Under **Text and colors**, **Alternate pink and blue for consecutive references**
+is off by default. References start pink. Enable this setting to alternate pink
+and blue backgrounds within consecutive groups. Text colors stay unchanged. For example,
 `<ref>...</ref><ref name="a" />{{sfn|a}}<ref name="b">...</ref>` has three groups:
-the middle `<ref name="a" />{{sfn|a}}` shares the darker background. A supported
+the middle `<ref name="a" />{{sfn|a}}` shares the blue background. A supported
 reference template immediately following a self-closing `<ref />` belongs to
 that group; subsequent and standalone reference templates also alternate.
-Intervening prose starts a new sequence.
+Intervening prose starts a new sequence. `{{Efn}}` and its supported variants use
+ordinary template shading and retain the optional small reference text size.
+They do not count as reference color groups; consecutive references inside a note
+alternate from pink independently of references before the note.
 
 Reference hover previews show a subreference's `details` before its parent
 bibliography. Those details remain visible when the parent definition is missing.

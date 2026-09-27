@@ -16,7 +16,6 @@ export function renderSegments(
     enabled: boolean,
 ): void {
     const target = editor.ownerDocument;
-    const fragment = target.createDocumentFragment();
     const limit =
         window.wikEdLiteConfig?.maxLiveHighlightLength ??
         DEFAULT_MAX_LIVE_HIGHLIGHT_LENGTH;
@@ -24,9 +23,26 @@ export function renderSegments(
         editor.replaceChildren(target.createTextNode(source));
         return;
     }
-    const segments = highlightWikitext(source, options);
-    appendHighlightedSegments(target, fragment, segments, linkCheckState);
-    editor.replaceChildren(fragment);
+    editor.replaceChildren(
+        createHighlightedFragment(target, source, linkCheckState, options),
+    );
+}
+
+/** Shared source rendering for the editor and reference field values. */
+export function createHighlightedFragment(
+    target: Document,
+    source: string,
+    linkCheckState: LinkCheckState,
+    options: HighlightOptions,
+): DocumentFragment {
+    const fragment = target.createDocumentFragment();
+    appendHighlightedSegments(
+        target,
+        fragment,
+        highlightWikitext(source, options),
+        linkCheckState,
+    );
+    return fragment;
 }
 
 function appendHighlightedSegments(
@@ -68,6 +84,9 @@ function appendHighlightedSegments(
         }
         if (segment.referenceSource != null) {
             span.dataset.reference = segment.referenceSource;
+            if (segment.referenceStart != null) {
+                span.dataset.referenceStart = String(segment.referenceStart);
+            }
         }
         fragment.append(span);
     }

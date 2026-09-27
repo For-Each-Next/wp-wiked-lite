@@ -1,5 +1,59 @@
 # Changelog
 
+## [0.2.0] - 2026-09-27
+
+### Added
+
+- Reference tooltips edit citation names, values, notes, and subreference details,
+  with native textarea sync, Undo/Redo, and preserved spacing.
+- Citation fields can be added before the first parameter or after an existing
+  one. Duplicate names are rejected.
+- Bare pipes become `{{!}}` without altering nested templates, wikilinks,
+  comments, or literal tags.
+- Edit/add forms offer Cancel, Reset, and Save. Changed fields are highlighted;
+  saving or resetting keeps the tooltip open.
+- Reset restores original fields or removes newly added fields.
+- Optional lightweight editing uses text controls. Enter saves, Shift+Enter adds
+  a line break, and Escape cancels. Off by default.
+- Saved preferences control reference editing independently of inspection.
+  Remote fields are read-only; local subreference details remain editable.
+- Duplicate citation parameters show an alert and explanation.
+- Reference values use syntax colors, bold link aliases, and optional
+  missing-link colors.
+- Ctrl/Cmd-click opens wiki links and external URLs in both tooltip modes.
+
+### Changed
+
+- Reference tooltip links keep their syntax colors without hover underlines or
+  pointer cursors; Ctrl/Cmd-click still opens their targets.
+- Reference backgrounds start pink; optional consecutive colors alternate pink
+  and blue, replacing darker purple and blue variants.
+- Article previews gain arrows. Both popups anchor to the mouse when opened,
+  stay fixed over the same source, and fit within the editor frame.
+- Reference UI, forms, icons, theme, and values share `reference-tooltip.ts`;
+  parsing and source edits remain independent of the UI.
+- Pure reference highlighting has a dedicated domain module. Highlighting reuses
+  tag scans.
+- Reference forms share validation and save paths; editor and tooltip rendering
+  share highlight options and link-check state.
+- Formatter preferences share snapshot and reset logic.
+- Highlighting settings group Syntax highlighting, Text and colors, Links, and
+  Reference popups.
+- Disabling highlighting restores the native textarea while retaining display
+  preferences.
+- Tooltip headings distinguish reference names, subreference content, and
+  citation fields. Popup colors follow Codex theme tokens.
+- Gadget and userscript builds credit `@wikimedia/codex-icons` and include its
+  full MIT notice; project-owned material remains CC0.
+
+### Fixed
+
+- Detached Save controls from closed reference forms can no longer apply edits.
+- `{{Efn}}` and supported variants use ordinary template shading while retaining
+  the optional small reference text size.
+- Consecutive references inside notes alternate pink and blue when enabled,
+  starting a fresh sequence from pink.
+
 ## [0.1.0] - 2026-09-27
 
 Initial release.

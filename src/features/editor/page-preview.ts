@@ -6,6 +6,11 @@ import type {
 } from "../../domain/page-summary.ts";
 import type { PagePreviewTarget } from "../../domain/highlight-partition.ts";
 import { eventElement } from "./dom.ts";
+import {
+    calculatePreviewPlacement,
+    PREVIEW_ANCHOR_GAP,
+    selectPreviewRect,
+} from "./preview-position.ts";
 
 export interface PagePreviewController {
     clearCache(): void;
@@ -27,8 +32,6 @@ const DEFAULT_HOVER_DELAY = 700;
 const PREFETCH_DELAY = 120;
 const HIDE_DELAY = 220;
 const MOVE_TOLERANCE = 4;
-const VIEWPORT_MARGIN = 12;
-const ANCHOR_GAP = 8;
 
 /** Attaches a hover controller without changing the editor's source text. */
 export function attachPagePreviews(
@@ -43,6 +46,8 @@ export function attachPagePreviews(
     let card: HTMLElement | null = null;
     let hoverX = 0;
     let hoverY = 0;
+    let pointerX = 0;
+    let pointerY = 0;
     let generation = 0;
     let prefetchTimer = 0;
     let showTimer = 0;
@@ -121,25 +126,62 @@ export function attachPagePreviews(
         if (card == null || anchor == null || !anchor.isConnected) {
             return;
         }
-        const rect = anchor.getBoundingClientRect();
-        const width = card.offsetWidth;
+        const rect = selectPreviewRect(
+            Array.from(anchor.getClientRects()),
+            pointerY,
+            pointerX,
+        );
+        if (
+            rect == null ||
+            rect.bottom <= 0 ||
+            rect.right <= 0 ||
+            rect.top >= view.innerHeight ||
+            rect.left >= view.innerWidth
+        ) {
+            dismiss();
+            return;
+        }
+        const surface = card.querySelector<HTMLElement>(
+            ".wiked-lite-page-preview__surface",
+        )!;
+        surface.style.removeProperty("max-height");
         const height = card.offsetHeight;
-        const roomBelow = view.innerHeight - rect.bottom - ANCHOR_GAP;
-        const roomAbove = rect.top - ANCHOR_GAP;
-        const top =
-            roomBelow >= height || roomBelow >= roomAbove
-                ? rect.bottom + ANCHOR_GAP
-                : rect.top - height - ANCHOR_GAP;
-        card.style.left = `${clamp(
-            rect.left,
-            VIEWPORT_MARGIN,
-            view.innerWidth - width - VIEWPORT_MARGIN,
-        )}px`;
-        card.style.top = `${clamp(
-            top,
-            VIEWPORT_MARGIN,
-            view.innerHeight - height - VIEWPORT_MARGIN,
-        )}px`;
+        const placement = calculatePreviewPlacement(
+            rect,
+            { width: card.offsetWidth, height },
+            { width: view.innerWidth, height: view.innerHeight },
+            pointerX,
+            "below",
+        );
+        card.classList.toggle(
+            "wiked-lite-page-preview--above",
+            placement.side === "above",
+        );
+        card.classList.toggle(
+            "wiked-lite-page-preview--below",
+            placement.side === "below",
+        );
+        card.style.left = `${placement.left}px`;
+        card.style.setProperty(
+            "--wiked-lite-page-preview-tail-left",
+            `${placement.tailLeft}px`,
+        );
+        card.style.setProperty(
+            "--wiked-lite-page-preview-bridge-left",
+            `${placement.bridgeLeft}px`,
+        );
+        card.style.setProperty(
+            "--wiked-lite-page-preview-bridge-width",
+            `${placement.bridgeWidth}px`,
+        );
+        if (placement.maxHeight < height) {
+            surface.style.maxHeight = `${placement.maxHeight}px`;
+        }
+        card.style.top = `${
+            placement.side === "above"
+                ? rect.top - PREVIEW_ANCHOR_GAP - card.offsetHeight
+                : rect.bottom + PREVIEW_ANCHOR_GAP
+        }px`;
     }
 
     function show(expectedGeneration: number): void {
@@ -224,12 +266,21 @@ export function attachPagePreviews(
         if (next == null) {
             return;
         }
-        if (next === anchor) {
+        if (
+            next === anchor ||
+            (card != null && samePreviewSource(next, anchor))
+        ) {
             keepOpen();
+            if (card == null) {
+                pointerX = event.clientX;
+                pointerY = event.clientY;
+            }
             return;
         }
         dismiss();
         anchor = next;
+        pointerX = event.clientX;
+        pointerY = event.clientY;
         hoverX = event.clientX;
         hoverY = event.clientY;
         scheduleHover();
@@ -238,12 +289,18 @@ export function attachPagePreviews(
     function handleMove(event: PointerEvent): void {
         if (
             !enabled ||
-            card != null ||
+            event.pointerType === "touch" ||
             anchor == null ||
             findPreviewAnchor(editor, event.target) !== anchor
         ) {
             return;
         }
+        if (card != null) {
+            keepOpen();
+            return;
+        }
+        pointerX = event.clientX;
+        pointerY = event.clientY;
         if (
             Math.hypot(event.clientX - hoverX, event.clientY - hoverY) <=
             MOVE_TOLERANCE
@@ -257,13 +314,19 @@ export function attachPagePreviews(
 
     function handleOut(event: PointerEvent): void {
         const from = findPreviewAnchor(editor, event.target);
-        if (from == null || from !== anchor) {
+        if (
+            from == null ||
+            (from !== anchor &&
+                (card == null || !samePreviewSource(from, anchor)))
+        ) {
             return;
         }
         const to = findPreviewAnchor(editor, event.relatedTarget);
         if (
             to === anchor ||
-            (card != null && containsTarget(card, event.relatedTarget))
+            (card != null &&
+                (samePreviewSource(to, anchor) ||
+                    containsTarget(card, event.relatedTarget)))
         ) {
             return;
         }
@@ -323,6 +386,12 @@ function createCard(
     const card = document.createElement("aside");
     card.className = "wiked-lite-page-preview";
     card.role = "tooltip";
+    const surface = document.createElement("div");
+    surface.className = "wiked-lite-page-preview__surface";
+    const tail = document.createElement("span");
+    tail.className = "wiked-lite-page-preview__tail";
+    tail.setAttribute("aria-hidden", "true");
+    card.append(surface, tail);
     const title = document.createElement("a");
     title.className = "wiked-lite-page-preview__title";
     title.href = summary.pageUrl;
@@ -332,17 +401,17 @@ function createCard(
         previewTarget.wiki === "local"
             ? summary.title
             : `${previewTarget.wiki}:${previewTarget.title}`;
-    card.append(title);
+    surface.append(title);
     if (summary.description != null && summary.description !== "") {
         const description = document.createElement("div");
         description.className = "wiked-lite-page-preview__description";
         description.textContent = summary.description;
-        card.append(description);
+        surface.append(description);
     }
     const extract = document.createElement("p");
     extract.className = "wiked-lite-page-preview__extract";
     extract.textContent = summary.extract;
-    card.append(extract);
+    surface.append(extract);
     return card;
 }
 
@@ -372,6 +441,38 @@ function findPreviewAnchor(
     return anchor != null && editor.contains(anchor) ? anchor : null;
 }
 
+/** Highlighted characters can split one title into adjacent preview spans. */
+function samePreviewSource(
+    left: HTMLElement | null,
+    right: HTMLElement | null,
+): boolean {
+    if (left == null || right == null) {
+        return false;
+    }
+    if (left === right) {
+        return true;
+    }
+    const matches = (element: HTMLElement): boolean =>
+        element.dataset.pagePreviewTitle === left.dataset.pagePreviewTitle &&
+        element.dataset.pagePreviewWiki === left.dataset.pagePreviewWiki;
+    if (!matches(right)) {
+        return false;
+    }
+    for (const direction of ["previousSibling", "nextSibling"] as const) {
+        let sibling = left[direction];
+        while (sibling?.nodeType === 1) {
+            if (!matches(sibling as HTMLElement)) {
+                break;
+            }
+            if (sibling === right) {
+                return true;
+            }
+            sibling = sibling[direction];
+        }
+    }
+    return false;
+}
+
 function containsTarget(
     parent: HTMLElement,
     target: EventTarget | null,
@@ -381,10 +482,6 @@ function containsTarget(
         "nodeType" in target &&
         parent.contains(target as Node)
     );
-}
-
-function clamp(value: number, minimum: number, maximum: number): number {
-    return Math.max(minimum, Math.min(value, Math.max(minimum, maximum)));
 }
 
 function normalizeDelay(value: number | undefined): number {

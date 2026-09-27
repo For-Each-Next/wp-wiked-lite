@@ -1,7 +1,47 @@
 import assert from "node:assert/strict";
 import test, { type TestContext } from "node:test";
 
-import { attachModifiedLinkNavigation } from "../src/features/editor/links.ts";
+import {
+    attachModifiedLinkNavigation,
+    handleSourceLinkClick,
+} from "../src/features/editor/links.ts";
+
+test("source anchors require Ctrl or Cmd and open wiki and external links in a new tab", (t) => {
+    const navigation = createNavigationHarness(t);
+    const hrefs = [
+        "https://example.test/wiki/Target",
+        "https://external.example/article",
+    ];
+
+    for (const href of hrefs) {
+        const plain = navigation.sourceClick(href);
+        assert.equal(plain.defaultPrevented, true);
+        for (const modifier of [{ ctrlKey: true }, { metaKey: true }]) {
+            const modified = navigation.sourceClick(href, modifier);
+            assert.equal(modified.defaultPrevented, true);
+        }
+    }
+    assert.deepEqual(
+        navigation.opened,
+        hrefs.flatMap((href) => [
+            [href, "_blank", "noopener,noreferrer"],
+            [href, "_blank", "noopener,noreferrer"],
+        ]),
+    );
+
+    for (const gesture of [
+        { ctrlKey: true, shiftKey: true },
+        { ctrlKey: true, altKey: true },
+        { ctrlKey: true, detail: 2 },
+        { ctrlKey: true, button: 1 },
+        { detail: 0 },
+    ]) {
+        navigation.sourceClick(hrefs[0]!, gesture);
+    }
+    navigation.setSelection(true);
+    navigation.sourceClick(hrefs[0]!, { ctrlKey: true });
+    assert.equal(navigation.opened.length, 4);
+});
 
 test("modified navigation supports Ctrl and Cmd while preserving selection gestures", (t) => {
     const navigation = createNavigationHarness(t);
@@ -118,7 +158,7 @@ function createNavigationHarness(t: TestContext, enabled = true) {
     const controller = attachModifiedLinkNavigation(editor, enabled);
     t.after(() => controller.destroy());
 
-    function emit(type: string, properties: MouseEventInit = {}): MouseEvent {
+    function createEvent(properties: MouseEventInit = {}): MouseEvent {
         const event = {
             altKey: false,
             button: 0,
@@ -135,10 +175,15 @@ function createNavigationHarness(t: TestContext, enabled = true) {
             },
             ...properties,
         };
-        for (const listener of listeners.get(type) ?? []) {
-            listener(event as unknown as MouseEvent);
-        }
         return event as unknown as MouseEvent;
+    }
+
+    function emit(type: string, properties: MouseEventInit = {}): MouseEvent {
+        const event = createEvent(properties);
+        for (const listener of listeners.get(type) ?? []) {
+            listener(event);
+        }
+        return event;
     }
 
     return {
@@ -148,6 +193,14 @@ function createNavigationHarness(t: TestContext, enabled = true) {
         click(properties: MouseEventInit = {}) {
             emit("mousedown", properties);
             return emit("click", properties);
+        },
+        sourceClick(href: string, properties: MouseEventInit = {}) {
+            const event = createEvent(properties);
+            handleSourceLinkClick(event, {
+                href,
+                ownerDocument: editor.ownerDocument,
+            } as HTMLAnchorElement);
+            return event;
         },
         listenerCount: () =>
             [...listeners.values()].reduce(

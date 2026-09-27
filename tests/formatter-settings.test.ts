@@ -22,6 +22,8 @@ test("formatter settings round trip through local storage", () => {
     assert.equal(store.load().ctrlClickLinks, true);
     assert.equal(store.load().formatter.formatHtmlTags, false);
     assert.equal(store.load().linkPreviews, false);
+    assert.equal(store.load().referenceEditing, true);
+    assert.equal(store.load().referenceLightweightEditing, false);
     assert.equal(store.load().useCodeMirrorForOtherModels, false);
     store.save(settings);
 
@@ -132,6 +134,95 @@ test("older settings retain their choices and enable modified link clicks", () =
     );
 
     assert.deepEqual(store.load(), { ...stored, ctrlClickLinks: true });
+});
+
+test("older settings retain their choices and enable reference editing", () => {
+    const stored: Partial<FormatterSettings> = createConfiguredSettings();
+    delete stored.referenceEditing;
+    const store = createFormatterSettingsStore(
+        () => new MemorySettingsStorage(JSON.stringify(stored)),
+    );
+
+    assert.deepEqual(store.load(), { ...stored, referenceEditing: true });
+});
+
+test("reference editing follows current editor choices without altering saved settings", () => {
+    const saved = createConfiguredSettings();
+    const features = getEditorFeatureSettings(saved);
+
+    assert.equal(features.referenceEditing, false);
+    features.referenceEditing = true;
+    assert.equal(saved.referenceEditing, false);
+    assert.deepEqual(withEditorFeatureSettings(saved, features), {
+        ...saved,
+        referenceEditing: true,
+    });
+});
+
+test("older settings retain their choices with lightweight editing disabled", () => {
+    const stored: Partial<FormatterSettings> = createConfiguredSettings();
+    delete stored.referenceLightweightEditing;
+    const store = createFormatterSettingsStore(
+        () => new MemorySettingsStorage(JSON.stringify(stored)),
+    );
+
+    assert.deepEqual(store.load(), {
+        ...stored,
+        referenceLightweightEditing: false,
+    });
+});
+
+test("lightweight editing follows current editor choices without altering saved settings", () => {
+    const saved = createConfiguredSettings();
+    const features = getEditorFeatureSettings(saved);
+
+    assert.equal(features.referenceLightweightEditing, true);
+    features.referenceLightweightEditing = false;
+    assert.equal(saved.referenceLightweightEditing, true);
+    assert.deepEqual(withEditorFeatureSettings(saved, features), {
+        ...saved,
+        referenceLightweightEditing: false,
+    });
+});
+
+test("saving invalid lightweight editing choices fails validation", () => {
+    const storage = new MemorySettingsStorage();
+    const store = createFormatterSettingsStore(() => storage);
+    for (const referenceLightweightEditing of [
+        null,
+        0,
+        1,
+        "true",
+        "false",
+        {},
+        [],
+    ]) {
+        const settings: unknown = {
+            ...createConfiguredSettings(),
+            referenceLightweightEditing,
+        };
+        assert.throws(
+            () => store.save(settings as FormatterSettings),
+            /invalid/u,
+        );
+    }
+    assert.equal(storage.getItem(FORMATTER_SETTINGS_STORAGE_KEY), null);
+});
+
+test("saving invalid reference editing choices fails validation", () => {
+    const storage = new MemorySettingsStorage();
+    const store = createFormatterSettingsStore(() => storage);
+    for (const referenceEditing of [null, 0, 1, "true", "false", {}, []]) {
+        const settings: unknown = {
+            ...createConfiguredSettings(),
+            referenceEditing,
+        };
+        assert.throws(
+            () => store.save(settings as FormatterSettings),
+            /invalid/u,
+        );
+    }
+    assert.equal(storage.getItem(FORMATTER_SETTINGS_STORAGE_KEY), null);
 });
 
 test("modified link click choices follow the current editor settings", () => {
@@ -256,6 +347,10 @@ function createInvalidSettings(): unknown[] {
         },
         { ...valid, smallReferenceText: undefined },
         { ...valid, linkPreviews: "yes" },
+        { ...valid, referenceEditing: "yes" },
+        { ...valid, referenceEditing: null },
+        { ...valid, referenceLightweightEditing: "yes" },
+        { ...valid, referenceLightweightEditing: null },
         { ...valid, syntaxHighlighting: "no" },
         { ...valid, alternateReferenceColors: "yes" },
         { ...valid, alternateReferenceColors: null },
@@ -307,6 +402,8 @@ function createConfiguredSettings(): FormatterSettings {
         highlightMissing: true,
         largeFont: true,
         linkPreviews: true,
+        referenceEditing: false,
+        referenceLightweightEditing: true,
         referencePreviews: false,
         resolveRedirects: true,
         resolveTemplateRedirects: true,

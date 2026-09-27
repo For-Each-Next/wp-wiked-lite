@@ -89,6 +89,8 @@ test("applying editor settings never runs the formatter", async () => {
     bindings.alternateReferenceColors.value = true;
     bindings.ctrlClickLinks.value = false;
     bindings.useCodeMirrorForOtherModels.value = true;
+    bindings.referenceEditing.value = false;
+    bindings.referenceLightweightEditing.value = true;
     bindings.largeFont.value = true;
     bindings.resolveRedirects.value = true;
     bindings.updateFirstParameterMode("compact");
@@ -99,6 +101,8 @@ test("applying editor settings never runs the formatter", async () => {
     assert.equal(closed.length, 1);
     assert.equal(closed[0]?.alternateReferenceColors, true);
     assert.equal(closed[0]?.ctrlClickLinks, false);
+    assert.equal(closed[0]?.referenceEditing, false);
+    assert.equal(closed[0]?.referenceLightweightEditing, true);
     assert.equal(closed[0]?.useCodeMirrorForOtherModels, true);
     assert.equal(closed[0]?.largeFont, true);
     assert.equal(closed[0]?.resolveRedirects, true);
@@ -126,7 +130,7 @@ for (const dismissal of ["cancel", "escape"] as const) {
     });
 }
 
-test("preserve modes and hidden dependent choices retain their configuration", async () => {
+test("preserve modes and dependent choices retain their configuration", async () => {
     const initial = createDefaultFormatterSettings();
     const { bindings, saved } = harness({ initialSelection: initial });
     bindings.activeTab.value = "editor";
@@ -139,6 +143,8 @@ test("preserve modes and hidden dependent choices retain their configuration", a
     bindings.updateFirstParameterMode("preserve");
     bindings.updateSubsequentParameterMode("preserve");
     bindings.resolveTemplateRedirects.value = true;
+    bindings.referenceEditing.value = false;
+    bindings.referenceLightweightEditing.value = true;
     bindings.referencePreviews.value = false;
     bindings.fullPageReferencePreviews.value = true;
     await bindings.onMenuAction("save-settings");
@@ -154,6 +160,8 @@ test("preserve modes and hidden dependent choices retain their configuration", a
     assert.equal(selection.resolveRedirects, false);
     assert.equal(selection.resolveTemplateRedirects, true);
     assert.equal(selection.referencePreviews, false);
+    assert.equal(selection.referenceEditing, false);
+    assert.equal(selection.referenceLightweightEditing, true);
     assert.equal(selection.fullPageReferencePreviews, true);
 });
 
@@ -291,6 +299,8 @@ test("reset restores every draft setting without applying or closing", async () 
     bindings.highlightMissing.value = true;
     bindings.largeFont.value = true;
     bindings.linkPreviews.value = true;
+    bindings.referenceEditing.value = false;
+    bindings.referenceLightweightEditing.value = true;
     bindings.referencePreviews.value = false;
     bindings.resolveRedirects.value = true;
     bindings.resolveTemplateRedirects.value = true;
@@ -345,6 +355,29 @@ test("the reference color setting defaults off and restores a saved choice", () 
 
     assert.equal(
         harness({ initialSelection }).bindings.alternateReferenceColors.value,
+        true,
+    );
+});
+
+test("reference editing defaults on and restores a saved disabled choice", () => {
+    assert.equal(harness().bindings.referenceEditing.value, true);
+    const initialSelection = createDefaultFormatterSettings();
+    initialSelection.referenceEditing = false;
+
+    assert.equal(
+        harness({ initialSelection }).bindings.referenceEditing.value,
+        false,
+    );
+});
+
+test("lightweight editing defaults off and restores a saved enabled choice", () => {
+    assert.equal(harness().bindings.referenceLightweightEditing.value, false);
+    const initialSelection = createDefaultFormatterSettings();
+    initialSelection.referenceLightweightEditing = true;
+
+    assert.equal(
+        harness({ initialSelection }).bindings.referenceLightweightEditing
+            .value,
         true,
     );
 });

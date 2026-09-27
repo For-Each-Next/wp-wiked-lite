@@ -18,9 +18,10 @@ assistant to examine and improve the code.
 
 ## Features
 
-![highlighting and previewing a citation](/docs/images/screenshot-01.png)
-_The wikitext from "[地球冒险3][6]" by [Chinese Wikipedians][8] is licensed
-under [CC BY-SA 4.0][7]._
+![previewing a citation](/docs/images/screenshot-01.png)
+![previewing a template wrapped interwiki link](/docs/images/screenshot-02.png)
+_<small>These pieces of wikitext from "[地球冒险3][6]" by [Chinese Wikipedians][8]
+are licensed under [CC BY-SA 4.0][7].</small>_
 
 ### Syntax highlighting
 
@@ -65,7 +66,8 @@ code was generated with GPT, the repository owner does not claim copyright in
 the project's own material. To the extent the owner holds any rights in that
 material, he dedicates those rights to the public domain under
 [CC0 1.0](LICENSE). Third-party dependencies and Wikimedia content retain their
-own terms.
+own terms. Bundled Codex icon paths remain MIT-licensed; see
+[third-party notices](THIRD-PARTY-NOTICES.md).
 
 [1]: https://en.wikipedia.org/wiki/User:Cacycle
 [2]: https://en.wikipedia.org/wiki/User:Cacycle/wikEd

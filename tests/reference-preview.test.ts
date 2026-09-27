@@ -441,3 +441,66 @@ test("reference-like templates use current-wiki namespace aliases", () => {
     assert.equal(crossWiki?.referenceLabel, "");
     assert.equal(crossWiki?.noteText, "{{T:efn|Localized note|name=context}}");
 });
+
+test("all duplicate citation fields remain flagged after pairing person fields", () => {
+    const reference =
+        "{{cite book|first1=Jane|last1=Doe|title=Book|last1=Roe|last1=Poe}}";
+    const preview = buildReferencePreview(reference, reference);
+    assert.deepEqual(preview?.rows, [
+        {
+            fields: [
+                { name: "last1", value: "Doe", duplicate: true },
+                { name: "first1", value: "Jane" },
+            ],
+        },
+        { fields: [{ name: "title", value: "Book" }] },
+        { fields: [{ name: "last1", value: "Roe", duplicate: true }] },
+        { fields: [{ name: "last1", value: "Poe", duplicate: true }] },
+    ]);
+});
+
+test("read-only previews retain blank duplicate parameters and omit unique blank fields", () => {
+    const reference = "{{cite book|last1=Doe|last1= \n|title=Book|year=}}";
+    const readOnly = buildReferencePreview(reference, reference);
+    assert.deepEqual(readOnly?.rows, [
+        { fields: [{ name: "last1", value: "Doe", duplicate: true }] },
+        { fields: [{ name: "last1", value: "", duplicate: true }] },
+        { fields: [{ name: "title", value: "Book" }] },
+    ]);
+    const editable = buildReferencePreview(reference, reference, null, 0);
+    const duplicates = editable?.rows
+        .flatMap((row) => row.fields)
+        .filter((field) => field.name === "last1");
+    assert.equal(duplicates?.length, 2);
+    assert.ok(duplicates?.every((field) => field.duplicate === true));
+});
+
+test("duplicate names are case-sensitive and scoped to the outer citation", () => {
+    const reference =
+        "{{cite book|last1=Doe|Last1=Roe|title={{lang|title=Nested|last1=Nested}}|quote=<!-- |last1=Hidden -->}}";
+    const fields = buildReferencePreview(reference, reference)?.rows.flatMap(
+        (row) => row.fields,
+    );
+    assert.equal(fields?.length, 4);
+    assert.ok(fields?.every((field) => field.duplicate === undefined));
+});
+
+test("explicit numeric names collide with their implicit positional counterparts", () => {
+    const reference = "{{cite book|First|1=Override|Second|2= |3=Unique}}";
+    const fields = buildReferencePreview(
+        reference,
+        reference,
+        null,
+        0,
+    )?.rows.flatMap((row) => row.fields);
+    assert.deepEqual(
+        fields?.map(({ name, duplicate }) => ({ name, duplicate })),
+        [
+            { name: "1", duplicate: true },
+            { name: "1", duplicate: true },
+            { name: "2", duplicate: true },
+            { name: "2", duplicate: true },
+            { name: "3", duplicate: undefined },
+        ],
+    );
+});

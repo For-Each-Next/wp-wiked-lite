@@ -44,27 +44,26 @@ export interface FormatterDialogOptions {
     onSubmit(selection: FormatterDialogSelection): Promise<void>;
 }
 
-interface DialogBindings {
+type PreferenceSettings = Omit<FormatterSettings, "formatter">;
+type PreferenceBindings = {
+    [Key in keyof PreferenceSettings]: VueRef<PreferenceSettings[Key]>;
+};
+
+interface DialogBindings extends PreferenceBindings {
     activeTab: VueRef<DialogTab>;
-    alternateReferenceColors: VueRef<boolean>;
     announcement: VueRef<{ id: number; message: string } | null>;
     applying: VueRef<boolean>;
     controls: VueRef<HTMLElement | null>;
-    ctrlClickLinks: VueRef<boolean>;
     canNormalizeConversion: boolean;
     characterWidthRatio: VueRef<CharacterWidthRatio>;
     error: VueRef<string>;
     firstParameterMode: VueRef<FirstParameterMode>;
     formatHtmlTags: VueRef<boolean>;
-    fullPageReferencePreviews: VueRef<boolean>;
-    highlightMissing: VueRef<boolean>;
     indentBlockTemplates: VueRef<boolean>;
     indentSpaces: VueRef<string | number>;
     interfaceLocale: string;
-    largeFont: VueRef<boolean>;
     linkHelperDocumentationUrl: string;
     linkModifierKey: "Ctrl" | "Command";
-    linkPreviews: VueRef<boolean>;
     msg: typeof msg;
     menuItems: Array<{
         label: string;
@@ -75,16 +74,10 @@ interface DialogBindings {
     normalizeConversion: VueRef<boolean>;
     open: VueRef<boolean>;
     redirectPolicyUrl: string;
-    referencePreviews: VueRef<boolean>;
-    resolveRedirects: VueRef<boolean>;
-    resolveTemplateRedirects: VueRef<boolean>;
     savingSettings: VueRef<boolean>;
     skipFirstLevelIndentation: VueRef<boolean>;
-    smallReferenceText: VueRef<boolean>;
     subsequentParameterMode: VueRef<SubsequentParameterMode>;
     supportsLinkHelpers: boolean;
-    syntaxHighlighting: VueRef<boolean>;
-    useCodeMirrorForOtherModels: VueRef<boolean>;
 
     apply(): Promise<void>;
 
@@ -205,31 +198,38 @@ export function createFormatterDialogBindings(
         options.canNormalizeConversion && initial.formatter.normalizeConversion,
     );
     const formatHtmlTags = Vue.ref(initial.formatter.formatHtmlTags);
-    const resolveRedirects = Vue.ref(initial.resolveRedirects);
-    const resolveTemplateRedirects = Vue.ref(initial.resolveTemplateRedirects);
-    const alternateReferenceColors = Vue.ref(initial.alternateReferenceColors);
-    const ctrlClickLinks = Vue.ref(initial.ctrlClickLinks);
-    const highlightMissing = Vue.ref(initial.highlightMissing);
-    const largeFont = Vue.ref(initial.largeFont);
-    const linkPreviews = Vue.ref(initial.linkPreviews);
-    const referencePreviews = Vue.ref(initial.referencePreviews);
-    const smallReferenceText = Vue.ref(initial.smallReferenceText);
-    const syntaxHighlighting = Vue.ref(initial.syntaxHighlighting);
-    const useCodeMirrorForOtherModels = Vue.ref(
-        initial.useCodeMirrorForOtherModels,
-    );
-    const fullPageReferencePreviews = Vue.ref(
-        initial.fullPageReferencePreviews,
-    );
+    const preferences: PreferenceBindings = {
+        alternateReferenceColors: Vue.ref(initial.alternateReferenceColors),
+        ctrlClickLinks: Vue.ref(initial.ctrlClickLinks),
+        fullPageReferencePreviews: Vue.ref(initial.fullPageReferencePreviews),
+        highlightMissing: Vue.ref(initial.highlightMissing),
+        largeFont: Vue.ref(initial.largeFont),
+        linkPreviews: Vue.ref(initial.linkPreviews),
+        referenceEditing: Vue.ref(initial.referenceEditing),
+        referenceLightweightEditing: Vue.ref(
+            initial.referenceLightweightEditing,
+        ),
+        referencePreviews: Vue.ref(initial.referencePreviews),
+        resolveRedirects: Vue.ref(initial.resolveRedirects),
+        resolveTemplateRedirects: Vue.ref(initial.resolveTemplateRedirects),
+        smallReferenceText: Vue.ref(initial.smallReferenceText),
+        syntaxHighlighting: Vue.ref(initial.syntaxHighlighting),
+        useCodeMirrorForOtherModels: Vue.ref(
+            initial.useCodeMirrorForOtherModels,
+        ),
+    };
     let closed = false;
 
     function createSelection(): FormatterDialogSelection {
         const selectedFirstMode = firstParameterMode.value;
         const selectedSubsequentMode = subsequentParameterMode.value;
         return {
-            alternateReferenceColors: alternateReferenceColors.value,
-            ctrlClickLinks: ctrlClickLinks.value,
-            fullPageReferencePreviews: fullPageReferencePreviews.value,
+            ...(Object.fromEntries(
+                Object.entries(preferences).map(([key, ref]) => [
+                    key,
+                    ref.value,
+                ]),
+            ) as PreferenceSettings),
             formatter: {
                 characterWidthRatio: characterWidthRatio.value,
                 firstParameterLayout:
@@ -250,15 +250,6 @@ export function createFormatterDialogBindings(
                         ? lastSubsequentParameterLayout
                         : selectedSubsequentMode,
             },
-            highlightMissing: highlightMissing.value,
-            largeFont: largeFont.value,
-            linkPreviews: linkPreviews.value,
-            referencePreviews: referencePreviews.value,
-            resolveRedirects: resolveRedirects.value,
-            resolveTemplateRedirects: resolveTemplateRedirects.value,
-            smallReferenceText: smallReferenceText.value,
-            syntaxHighlighting: syntaxHighlighting.value,
-            useCodeMirrorForOtherModels: useCodeMirrorForOtherModels.value,
         };
     }
 
@@ -298,7 +289,6 @@ export function createFormatterDialogBindings(
             return;
         } finally {
             applying.value = false;
-            savingSettings.value = false;
         }
         closeDialog(selection);
     }
@@ -351,10 +341,11 @@ export function createFormatterDialogBindings(
         try {
             options.onReset();
             const defaults = createDefaultFormatterSettings();
-            alternateReferenceColors.value = defaults.alternateReferenceColors;
-            ctrlClickLinks.value = defaults.ctrlClickLinks;
-            fullPageReferencePreviews.value =
-                defaults.fullPageReferencePreviews;
+            for (const key of Object.keys(preferences) as Array<
+                keyof PreferenceSettings
+            >) {
+                preferences[key].value = defaults[key];
+            }
             characterWidthRatio.value = defaults.formatter.characterWidthRatio;
             lastFirstParameterLayout = defaults.formatter.firstParameterLayout;
             firstParameterMode.value = defaults.formatter.formatFirstParameter
@@ -373,16 +364,6 @@ export function createFormatterDialogBindings(
             formatHtmlTags.value = defaults.formatter.formatHtmlTags;
             skipFirstLevelIndentation.value =
                 defaults.formatter.skipFirstLevelIndentation === true;
-            highlightMissing.value = defaults.highlightMissing;
-            largeFont.value = defaults.largeFont;
-            linkPreviews.value = defaults.linkPreviews;
-            referencePreviews.value = defaults.referencePreviews;
-            resolveRedirects.value = defaults.resolveRedirects;
-            resolveTemplateRedirects.value = defaults.resolveTemplateRedirects;
-            smallReferenceText.value = defaults.smallReferenceText;
-            syntaxHighlighting.value = defaults.syntaxHighlighting;
-            useCodeMirrorForOtherModels.value =
-                defaults.useCodeMirrorForOtherModels;
             announcement.value = {
                 id: ++announcementId,
                 message: msg("feedback.settingsReset"),
@@ -394,21 +375,18 @@ export function createFormatterDialogBindings(
     }
 
     return {
+        ...preferences,
         activeTab,
-        alternateReferenceColors,
         announcement,
         applying,
         apply,
         canNormalizeConversion: options.canNormalizeConversion,
         controls,
-        ctrlClickLinks,
         clearCache,
         characterWidthRatio,
         error,
         firstParameterMode,
         formatHtmlTags,
-        fullPageReferencePreviews,
-        highlightMissing,
         hasAlignment() {
             return (
                 firstParameterMode.value === "align-values" ||
@@ -419,10 +397,8 @@ export function createFormatterDialogBindings(
         indentBlockTemplates,
         indentSpaces,
         interfaceLocale,
-        largeFont,
         linkHelperDocumentationUrl: options.linkHelperDocumentationUrl,
         linkModifierKey: options.linkModifierKey,
-        linkPreviews,
         msg,
         menuItems: [
             { label: msg("dialog.saveSettings"), value: "save-settings" },
@@ -479,18 +455,12 @@ export function createFormatterDialogBindings(
             );
         },
         redirectPolicyUrl: options.redirectPolicyUrl,
-        referencePreviews,
         resetSettings,
-        resolveRedirects,
-        resolveTemplateRedirects,
         savingSettings,
         saveSettings,
         skipFirstLevelIndentation,
-        smallReferenceText,
         subsequentParameterMode,
         supportsLinkHelpers: options.supportsLinkHelpers,
-        syntaxHighlighting,
-        useCodeMirrorForOtherModels,
         templatePreview() {
             try {
                 return formatWikitext(
