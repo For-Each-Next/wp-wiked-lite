@@ -47,8 +47,11 @@ under [CC BY-SA 4.0][7]._
 ## How to use
 
 From the [latest release](../../releases/latest), copy the contents of
-`wiked_lite.min.js` into `Special:MyPage/common.js` or add it as a site gadget.
-Tampermonkey users can install `wiked_lite.user.js` instead.
+[wiked_lite.min.js](https://github.com/For-Each-Next/wp-wiked-lite/releases/latest/download/wiked_lite.min.js)
+into `Special:MyPage/common.js` or add it as a site gadget.
+Tampermonkey users can install
+[wiked_lite.user.js](https://github.com/For-Each-Next/wp-wiked-lite/releases/latest/download/wiked_lite.user.js)
+instead.
 
 On a wikitext edit page, open the **wikEd Lite panel** from the page tools to
 format wikitext or change preferences. Use the main button to apply your choices
