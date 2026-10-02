@@ -471,6 +471,7 @@
             </div>
             <div class="wiked-lite-dialog__footer-bar">
                 <cdx-menu-button
+                    v-if="!stackedActions"
                     v-model:selected="menuSelection"
                     :menu-items="menuItems"
                     :aria-label="msg('dialog.moreOptions')"
@@ -481,26 +482,40 @@
                     >{{ msg("dialog.more") }}</cdx-menu-button
                 >
                 <div class="wiked-lite-dialog__actions">
-                    <cdx-button
-                        class="wiked-lite-dialog__primary"
-                        type="button"
-                        action="progressive"
-                        weight="primary"
-                        :disabled="applying || savingSettings"
-                        @click="apply"
-                    >
-                        {{ primaryLabel() }}
-                    </cdx-button>
-                    <cdx-button
-                        class="wiked-lite-dialog__cancel"
-                        type="button"
-                        action="default"
-                        weight="quiet"
-                        :disabled="applying || savingSettings"
-                        @click="onClose"
-                    >
-                        {{ msg("dialog.cancel") }}
-                    </cdx-button>
+                    <template v-for="action in actionOrder()" :key="action">
+                        <cdx-menu-button
+                            v-if="action === 'more'"
+                            v-model:selected="menuSelection"
+                            :menu-items="menuItems"
+                            :aria-label="msg('dialog.moreOptions')"
+                            :disabled="applying || savingSettings"
+                            class="wiked-lite-dialog__more"
+                            weight="quiet"
+                            @update:selected="onMenuAction"
+                            >{{ msg("dialog.more") }}</cdx-menu-button
+                        >
+                        <cdx-button
+                            v-else
+                            :class="
+                                action === 'primary'
+                                    ? 'wiked-lite-dialog__primary'
+                                    : 'wiked-lite-dialog__cancel'
+                            "
+                            type="button"
+                            :action="
+                                action === 'primary' ? 'progressive' : 'default'
+                            "
+                            :weight="action === 'primary' ? 'primary' : 'quiet'"
+                            :disabled="applying || savingSettings"
+                            @click="action === 'primary' ? apply() : onClose()"
+                        >
+                            {{
+                                action === "primary"
+                                    ? primaryLabel()
+                                    : msg("dialog.cancel")
+                            }}
+                        </cdx-button>
+                    </template>
                 </div>
             </div>
         </template>

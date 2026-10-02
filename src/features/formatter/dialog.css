@@ -151,7 +151,7 @@
 
 .wiked-lite-dialog .wiked-lite-dialog__actions {
     display: flex;
-    flex-direction: row-reverse;
+    flex-direction: row;
     gap: var(--spacing-75, 12px);
 }
 

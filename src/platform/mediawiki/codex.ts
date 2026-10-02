@@ -18,6 +18,8 @@ export interface VueModule {
     defineComponent(component: unknown): unknown;
 
     ref<T>(value: T): VueRef<T>;
+
+    onUnmounted?(cleanup: () => void): void;
 }
 
 export interface CodexComponents {

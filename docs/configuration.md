@@ -1,5 +1,14 @@
 # Configuration
 
+**UI changes must follow [Wikimedia Codex: types and order of buttons](https://doc.wikimedia.org/codex/latest/style-guide/using-links-and-buttons.html#types-and-order-of-buttons).**
+Use one primary progressive action per group, normal secondary actions, quiet
+tertiary actions, and neutral cancellation. Forward flows place the primary
+action last in reading and keyboard order; stacked groups place it first.
+Keep dialog actions at the inline end with 12px spacing, and separate irreversible
+destructive actions from progressive actions. Use inline Codex messages for
+actionable errors, accessible progress for pending work, and native MediaWiki
+notifications for brief success feedback.
+
 Open **wikEd Lite panel** from the page tools. **Highlighting settings** controls
 highlighting, text size, and optional lookups; **Formatting** changes source text.
 The primary action accepts settings for the current edit. Cancel, close, and

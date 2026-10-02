@@ -18,10 +18,10 @@ assistant to examine and improve the code.
 
 ## Features
 
-![previewing a citation](/docs/images/screenshot-01.png)
-![previewing a template wrapped interwiki link](/docs/images/screenshot-02.png)
-_<small>These pieces of wikitext from "[地球冒险3][6]" by [Chinese Wikipedians][8]
-are licensed under [CC BY-SA 4.0][7].</small>_
+![Previewing a citation](docs/images/screenshot-01.png)
+![Previewing a template-wrapped interwiki link](docs/images/screenshot-02.png)
+
+Screenshots show an offline example at a 1024-pixel viewport width.
 
 ### Syntax highlighting
 
@@ -74,7 +74,4 @@ own terms. Bundled Codex icon paths remain MIT-licensed; see
 [3]: https://en.wikipedia.org/wiki/User:Remember_the_dot
 [4]: https://www.mediawiki.org/wiki/User:Remember_the_dot/Syntax_highlighter
 [5]: https://zh.wikipedia.org/
-[6]: https://zh.wikipedia.org/wiki/Special:PermanentLink/94562841
-[7]: https://creativecommons.org/licenses/by-sa/4.0/
-[8]: https://zh.wikipedia.org/w/index.php?title=地球冒险3&action=history&offset=20260925162900
 [9]: https://www.mediawiki.org/wiki/Extension:CodeMirror

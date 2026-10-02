@@ -75,11 +75,14 @@ interface DialogBindings extends PreferenceBindings {
     open: VueRef<boolean>;
     redirectPolicyUrl: string;
     savingSettings: VueRef<boolean>;
+    stackedActions: VueRef<boolean>;
     skipFirstLevelIndentation: VueRef<boolean>;
     subsequentParameterMode: VueRef<SubsequentParameterMode>;
     supportsLinkHelpers: boolean;
 
     apply(): Promise<void>;
+
+    actionOrder(): Array<"cancel" | "primary" | "more">;
 
     clearCache(): void;
 
@@ -159,6 +162,19 @@ export function createFormatterDialogBindings(
     options: FormatterDialogOptions,
 ): DialogBindings {
     const open = Vue.ref(true);
+    const actionLayout =
+        typeof matchMedia === "function"
+            ? matchMedia("(max-width: 639px)")
+            : undefined;
+    const stackedActions = Vue.ref(actionLayout?.matches ?? false);
+    const onActionLayoutChange = (event: MediaQueryListEvent): void => {
+        stackedActions.value = event.matches;
+    };
+    actionLayout?.addEventListener("change", onActionLayoutChange);
+    const releaseActionLayout = (): void => {
+        actionLayout?.removeEventListener("change", onActionLayoutChange);
+    };
+    Vue.onUnmounted?.(releaseActionLayout);
     const controls = Vue.ref<HTMLElement | null>(null);
     const activeTab = Vue.ref<DialogTab>("formatting");
     const announcement = Vue.ref<{ id: number; message: string } | null>(null);
@@ -258,6 +274,7 @@ export function createFormatterDialogBindings(
             return;
         }
         closed = true;
+        releaseActionLayout();
         open.value = false;
         options.onClose(selection);
     }
@@ -380,6 +397,11 @@ export function createFormatterDialogBindings(
         announcement,
         applying,
         apply,
+        actionOrder() {
+            return stackedActions.value
+                ? ["primary", "more", "cancel"]
+                : ["cancel", "primary"];
+        },
         canNormalizeConversion: options.canNormalizeConversion,
         controls,
         clearCache,
@@ -457,6 +479,7 @@ export function createFormatterDialogBindings(
         redirectPolicyUrl: options.redirectPolicyUrl,
         resetSettings,
         savingSettings,
+        stackedActions,
         saveSettings,
         skipFirstLevelIndentation,
         subsequentParameterMode,

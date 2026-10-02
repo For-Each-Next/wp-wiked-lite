@@ -1,7 +1,16 @@
 # wikEd Lite contributor instructions
 
+**UI changes must follow [Wikimedia Codex: types and order of buttons](https://doc.wikimedia.org/codex/latest/style-guide/using-links-and-buttons.html#types-and-order-of-buttons).**
+Use one primary progressive action per group, normal secondary actions, quiet
+tertiary actions, and neutral cancellation. Forward flows place the primary
+action last in reading and keyboard order; stacked groups place it first.
+Keep dialog actions at the inline end with 12px spacing, and separate irreversible
+destructive actions from progressive actions. Use inline Codex messages for
+actionable errors, accessible progress for pending work, and native MediaWiki
+notifications for brief success feedback.
+
 Read `CONTRIBUTING.md` and `docs/architecture.md` before changing project structure.
-This is a working MediaWiki gadget and a reference for other gadget authors.
+This is a standalone MediaWiki source-editor gadget.
 
 - Keep startup and wiring in `src/app/`, pure rules in `src/domain/`, host
   integration in `src/platform/`, and UI ownership in `src/features/`.

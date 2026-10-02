@@ -1,5 +1,14 @@
 # Contributing
 
+**UI changes must follow [Wikimedia Codex: types and order of buttons](https://doc.wikimedia.org/codex/latest/style-guide/using-links-and-buttons.html#types-and-order-of-buttons).**
+Use one primary progressive action per group, normal secondary actions, quiet
+tertiary actions, and neutral cancellation. Forward flows place the primary
+action last in reading and keyboard order; stacked groups place it first.
+Keep dialog actions at the inline end with 12px spacing, and separate irreversible
+destructive actions from progressive actions. Use inline Codex messages for
+actionable errors, accessible progress for pending work, and native MediaWiki
+notifications for brief success feedback.
+
 Use Node.js 24.14.1 or newer, as declared in `package.json`. CI checks the
 24.14.1 baseline. Install the exact tracked dependency tree with `npm ci`;
 install Chromium with `npx playwright install chromium` for browser tests.
@@ -34,6 +43,10 @@ asserting user-visible behavior over matching the spelling of implementation
 source. See [architecture](docs/architecture.md) for dependency and naming rules.
 
 ## Changes and reviews
+
+Run `npm run screenshots` to refresh the documentation images at a 1024 × 768
+viewport and device scale factor 1. See [screenshot fixtures](docs/screenshots.md)
+for the offline states and image ownership.
 
 Keep changes focused, explain the resulting behavior, and include relevant
 validation. Update all three message catalogs together. Record notable changes

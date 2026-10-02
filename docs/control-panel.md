@@ -1,5 +1,14 @@
 # Control panel design
 
+**UI changes must follow [Wikimedia Codex: types and order of buttons](https://doc.wikimedia.org/codex/latest/style-guide/using-links-and-buttons.html#types-and-order-of-buttons).**
+Use one primary progressive action per group, normal secondary actions, quiet
+tertiary actions, and neutral cancellation. Forward flows place the primary
+action last in reading and keyboard order; stacked groups place it first.
+Keep dialog actions at the inline end with 12px spacing, and separate irreversible
+destructive actions from progressive actions. Use inline Codex messages for
+actionable errors, accessible progress for pending work, and native MediaWiki
+notifications for brief success feedback.
+
 The panel uses the wiki's Vue and Wikimedia Codex components, with framed tabs
 and a small scoped stylesheet for spacing and layout. It does not bundle a separate UI
 framework or fetch design assets. The following official guidance informed
@@ -18,6 +27,12 @@ local verification.
 | Accessibility         | Codex manages modal focus, tab keyboard navigation, control labels, and focus indicators. Errors and progress use accessible feedback components. Logical spacing supports RTL; example wikitext remains LTR. | [Accessibility](https://doc.wikimedia.org/codex/latest/style-guide/accessibility.html), [Bidirectionality](https://doc.wikimedia.org/codex/latest/style-guide/bidirectionality.html)      |
 
 ## Interaction contract
+
+![Formatting panel](images/screenshot-03.png)
+![Highlighting preferences](images/screenshot-04.png)
+
+Both images use a 1024-pixel viewport width. Regenerate them with
+`npm run screenshots`; see [screenshot fixtures](screenshots.md).
 
 - Changes remain drafts until the primary action succeeds. Cancel, close, and
   Escape discard unapplied drafts. Applying Highlighting settings never invokes

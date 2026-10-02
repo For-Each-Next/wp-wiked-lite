@@ -43,6 +43,145 @@ test.beforeAll(async () => {
     runtime = result.outputFiles[0].text;
 });
 
+test.describe("documentation screenshots", () => {
+    test.skip(process.env.DOCUMENTATION_SCREENSHOTS !== "1", "Opt-in capture");
+    test.use({ viewport: { width: 1024, height: 768 }, deviceScaleFactor: 1 });
+
+    test("captures citation, link preview, and both panel tabs", async ({
+        page,
+    }) => {
+        await page.emulateMedia({ reducedMotion: "reduce" });
+        const source = await readFile(
+            `${projectRoot}tests/fixtures/documentation.wikitext`,
+            "utf8",
+        );
+        await mountFormatter(page, {
+            locale: "zh-Hans",
+            wikiId: "zhwiki",
+            source,
+            open: false,
+            settings: {
+                ...createDefaultFormatterSettings(),
+                linkPreviews: true,
+                smallReferenceText: false,
+            },
+        });
+        await page.addStyleTag({
+            content:
+                "#editform::before { content: '编辑示例'; display: block; font-size: 28px; margin-bottom: 12px; } .wiked-lite-frame { width: 100%; height: 600px; }",
+        });
+        await page.locator(".wiked-lite-frame").evaluate((element) => {
+            (element as HTMLIFrameElement).style.height = "600px";
+            const editor = (
+                element as HTMLIFrameElement
+            ).contentDocument?.querySelector<HTMLElement>(".wiked-lite-editor");
+            if (editor) editor.style.fontSize = "16px";
+        });
+        await page.route("**/w/api.php**", async (route) => {
+            await route.fulfill({
+                contentType: "application/json",
+                body: JSON.stringify({
+                    query: {
+                        pages: [
+                            {
+                                pageid: 1,
+                                title: new URL(
+                                    route.request().url(),
+                                ).searchParams.get("titles"),
+                            },
+                        ],
+                    },
+                }),
+            });
+        });
+        await page.route("**/api/rest_v1/page/summary/**", async (route) => {
+            await route.fulfill({
+                contentType: "application/json",
+                body: JSON.stringify({
+                    title: "Example article",
+                    description: "离线页面预览示例",
+                    extract:
+                        "此摘要用于演示跨语言模板中的页面预览。源代码保持不变，所有响应均由本地测试提供。",
+                    content_urls: {
+                        desktop: {
+                            page: "https://en.wikipedia.org/wiki/Example_article",
+                        },
+                    },
+                }),
+            });
+        });
+        const imageDir = `${projectRoot}docs/images`;
+        await mkdir(imageDir, { recursive: true });
+        const frame = page.frameLocator(".wiked-lite-frame");
+        await frame.locator("[data-reference]").first().hover();
+        await expect(frame.locator(".wiked-lite-tooltip")).toBeVisible();
+        await page.screenshot({
+            path: `${imageDir}/screenshot-01.png`,
+            animations: "disabled",
+        });
+        await page.mouse.move(0, 0);
+        await frame.locator('[data-page-preview-wiki="en"]').first().hover();
+        await expect(frame.locator(".wiked-lite-page-preview")).toBeVisible();
+        await page.screenshot({
+            path: `${imageDir}/screenshot-02.png`,
+            animations: "disabled",
+        });
+        await page.locator("#wiked-lite-format").click();
+        await expect(page.getByRole("dialog")).toBeVisible();
+        await page.screenshot({
+            path: `${imageDir}/screenshot-03.png`,
+            animations: "disabled",
+        });
+        await page.getByRole("tab", { name: "高亮设定", exact: true }).click();
+        await page.screenshot({
+            path: `${imageDir}/screenshot-04.png`,
+            animations: "disabled",
+        });
+        await expect(page.locator("#wpTextbox1")).toHaveValue(source);
+    });
+});
+
+for (const direction of ["ltr", "rtl"]) {
+    test(`dialog actions follow reading and keyboard order in ${direction}`, async ({
+        page,
+    }) => {
+        await mountFormatter(page, { direction });
+        const cancel = page
+            .getByRole("dialog")
+            .locator(".wiked-lite-dialog__cancel");
+        const primary = page
+            .getByRole("dialog")
+            .locator(".wiked-lite-dialog__primary");
+        await cancel.focus();
+        await page.keyboard.press("Tab");
+        await expect(primary).toBeFocused();
+        const cancelBox = await cancel.boundingBox();
+        const primaryBox = await primary.boundingBox();
+        expect(
+            direction === "ltr"
+                ? cancelBox!.x < primaryBox!.x
+                : cancelBox!.x > primaryBox!.x,
+        ).toBe(true);
+        await page.setViewportSize({ width: 390, height: 844 });
+        await expect(
+            page
+                .getByRole("dialog")
+                .locator(".wiked-lite-dialog__actions button")
+                .first(),
+        ).toHaveClass(/wiked-lite-dialog__primary/u);
+        await primary.focus();
+        await page.keyboard.press("Tab");
+        await expect(
+            page.getByRole("button", { name: "More options", exact: true }),
+        ).toBeFocused();
+        await page.keyboard.press("Tab");
+        await expect(cancel).toBeFocused();
+        expect((await primary.boundingBox())!.y).toBeLessThan(
+            (await cancel.boundingBox())!.y,
+        );
+    });
+}
+
 test("Codex tabs expose relevant controls and a live template example", async ({
     page,
 }) => {

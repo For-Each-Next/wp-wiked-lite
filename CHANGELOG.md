@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.2.1] - 2026-10-02
+
+### Changed
+
+- Dialog actions follow Codex hierarchy in reading and keyboard order.
+- Contributor and developer guides require Codex button types and ordering.
+- Offline documentation screenshots use a reproducible 1024 × 768 viewport.
+
 ## [0.2.0] - 2026-09-27
 
 ### Added
