@@ -1,4 +1,21 @@
-/** Delayed page-summary cards for links in the isolated editor. */
+/**
+ * @file src/features/editor/page-preview.ts
+ * Purpose: Delayed page-summary cards for links in the isolated editor.
+ *
+ * Table of contents:
+ * 1. Imports
+ * 2. PagePreviewController
+ * 3. PagePreviewOptions
+ * 4. Constants and state
+ * 5. attachPagePreviews
+ * 6. createCard
+ * 7. readTarget
+ * 8. cacheKey
+ * 9. findPreviewAnchor
+ * 10. samePreviewSource
+ * 11. containsTarget
+ * 12. normalizeDelay
+ */
 
 import type {
     PageSummary,

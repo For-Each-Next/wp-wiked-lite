@@ -77,6 +77,14 @@ Citation preview headings link to the citation template's documentation page.
 Archive URLs are shortened when they embed the original URL, including when
 only HTTP versus HTTPS differs; clicking still opens the full archive address.
 
+<!-- toc:start -->
+
+## Contents
+
+- [Runtime options](#runtime-options)
+
+<!-- toc:end -->
+
 ## Runtime options
 
 Set `window.wikEdLiteConfig` before loading the gadget:

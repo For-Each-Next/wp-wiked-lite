@@ -1,4 +1,47 @@
-/** Recognizes and safely formats Chinese language-conversion rules. */
+/**
+ * @file src/domain/conversion-rules.ts
+ * Purpose: Recognizes and safely formats Chinese language-conversion rules.
+ *
+ * Table of contents:
+ * 1. Imports
+ * 2. Constants and state
+ * 3. ConversionDeclaration
+ * 4. ConversionRuleList
+ * 5. LanguageConversionRange
+ * 6. RuleListContainer
+ * 7. isNoteTAName
+ * 8. isNoteTAConversionParameter
+ * 9. findConversionKeyRanges
+ * 10. normalizeChineseConversion
+ * 11. findChineseConversionValueRanges
+ * 12. findLanguageConversionRanges
+ * 13. findLanguageConversionValueRanges
+ * 14. findNoteTAConversionValueRanges
+ * 15. normalizeLanguageConversionMarkup
+ * 16. normalizeNoteTATemplates
+ * 17. normalizeTemplateParameters
+ * 18. formatConversionRuleList
+ * 19. parseConversionRuleList
+ * 20. normalizeSeparatorPrefix
+ * 21. appendFinalSeparator
+ * 22. findRuleValueRanges
+ * 23. findConversionDeclaration
+ * 24. findConversionDestination
+ * 25. findConversionArrow
+ * 26. getFirstTopLevelSeparator
+ * 27. splitConversionRanges
+ * 28. maskConversionSyntax
+ * 29. createTagMarkupRanges
+ * 30. findLanguageConversionEnd
+ * 31. updateNesting
+ * 32. trimRange
+ * 33. maskRanges
+ * 34. protectRanges
+ * 35. createProtectionMarker
+ * 36. findContainingRange
+ * 37. mergeRanges
+ * 38. replaceRanges
+ */
 
 import {
     type ParsedTemplateCall,

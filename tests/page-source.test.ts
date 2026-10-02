@@ -1,3 +1,13 @@
+/**
+ * @file tests/page-source.test.ts
+ * Purpose: tests / page source.test module.
+ *
+ * Table of contents:
+ * 1. Imports
+ * 2. Test scenarios
+ * 3. createApi
+ */
+
 import assert from "node:assert/strict";
 import test from "node:test";
 

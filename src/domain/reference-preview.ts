@@ -1,4 +1,49 @@
-/** Resolves highlighted references into compact citation previews. */
+/**
+ * @file src/domain/reference-preview.ts
+ * Purpose: Resolves highlighted references into compact citation previews.
+ *
+ * Table of contents:
+ * 1. Imports
+ * 2. ReferenceEditRange
+ * 3. ReferenceReplacement
+ * 4. ReferencePreview
+ * 5. ReferencePreviewField
+ * 6. ReferencePreviewRow
+ * 7. PersonPair
+ * 8. ResolvedReference
+ * 9. Constants and state
+ * 10. buildReferencePreview
+ * 11. buildReferenceFieldReplacement
+ * 12. buildReferenceFieldInsertion
+ * 13. buildReferenceFieldUpdate
+ * 14. isValidParameterValue
+ * 15. buildReferenceFieldRename
+ * 16. EditableField
+ * 17. readEditableField
+ * 18. renameFieldEdits
+ * 19. combineFieldEdits
+ * 20. readEditableCitation
+ * 21. findParameterIndex
+ * 22. isValidFieldName
+ * 23. isValidRange
+ * 24. escapeParameterPipes
+ * 25. formatNewParameter
+ * 26. createNotePreview
+ * 27. createCitationPreview
+ * 28. resolveReferenceSource
+ * 29. resolveTemplateReference
+ * 30. resolveExplanatoryFootnote
+ * 31. findCitationTemplate
+ * 32. trimRange
+ * 33. findDetailsRange
+ * 34. normalizeTemplateName
+ * 35. getTemplateTitle
+ * 36. pairPersonFields
+ * 37. collectPersonPairs
+ * 38. shortenArchiveUrl
+ * 39. withoutHtmlComments
+ * 40. findHttpUrl
+ */
 
 import * as shortFootnotes from "./short-footnotes.ts";
 import { type NamespaceSource, stripNamespacePrefix } from "./wiki-titles.ts";

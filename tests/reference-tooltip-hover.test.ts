@@ -1,3 +1,16 @@
+/**
+ * @file tests/reference-tooltip-hover.test.ts
+ * Purpose: tests / reference tooltip hover.test module.
+ *
+ * Table of contents:
+ * 1. Imports
+ * 2. Test scenarios
+ * 3. createHoverHarness
+ * 4. FakeClock
+ * 5. FakeElement
+ * 6. FakeEditor
+ */
+
 import assert from "node:assert/strict";
 import test from "node:test";
 

@@ -3,6 +3,14 @@
 The project's own material remains dedicated under [CC0 1.0](LICENSE).
 The notices below apply to third-party material included in generated artifacts.
 
+<!-- toc:start -->
+
+## Contents
+
+- [Wikimedia Codex icons](#wikimedia-codex-icons)
+
+<!-- toc:end -->
+
 ## Wikimedia Codex icons
 
 The build extracts `cdxIconEdit`, `cdxIconEditUndo`, `cdxIconAdd`, `cdxIconAlert`, and

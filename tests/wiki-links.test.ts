@@ -1,3 +1,14 @@
+/**
+ * @file tests/wiki-links.test.ts
+ * Purpose: tests / wiki links.test module.
+ *
+ * Table of contents:
+ * 1. Imports
+ * 2. Constants and state
+ * 3. Test scenarios
+ * 4. aliases
+ */
+
 import assert from "node:assert/strict";
 import test from "node:test";
 import { decodeNamespaceCatalog } from "../src/domain/wiki-titles.ts";

@@ -1,3 +1,17 @@
+/**
+ * @file tests/namespaces.test.ts
+ * Purpose: tests / namespaces.test module.
+ *
+ * Table of contents:
+ * 1. Imports
+ * 2. Test scenarios
+ * 3. assertFailedWarnings
+ * 4. assertLoadedSiteinfo
+ * 5. createWarningLogger
+ * 6. createSiteinfo
+ * 7. magicWord
+ */
+
 import assert from "node:assert/strict";
 import test from "node:test";
 import { createLogger } from "../src/shared/logging.ts";

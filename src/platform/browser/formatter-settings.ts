@@ -1,4 +1,15 @@
-/** Browser-local persistence for formatter dialog choices. */
+/**
+ * @file src/platform/browser/formatter-settings.ts
+ * Purpose: Browser-local persistence for formatter dialog choices.
+ *
+ * Table of contents:
+ * 1. Imports
+ * 2. Constants and state
+ * 3. SettingsStorage
+ * 4. createFormatterSettingsStore
+ * 5. loadStoredFormatterSettings
+ * 6. getLocalStorage
+ */
 
 import {
     createDefaultFormatterSettings,

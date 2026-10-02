@@ -1,6 +1,15 @@
-import { dispatchNativeInput } from "../../platform/browser/events.ts";
-/** Owns editing, native-source synchronization, history, and teardown. */
+/**
+ * @file src/features/editor/controller.ts
+ * Purpose: Owns editing, native-source synchronization, history, and teardown.
+ *
+ * Table of contents:
+ * 1. Imports
+ * 2. createEditorController
+ * 3. EditorController
+ */
 
+import { dispatchNativeInput } from "../../platform/browser/events.ts";
+import { registerEditBoxBackend } from "./edit-box-backend.ts";
 import type { EditorServices } from "../../app/editor-contracts.ts";
 import type { EditorFeatureSettings } from "../../domain/formatter-settings.ts";
 import {
@@ -70,6 +79,7 @@ export class EditorController {
     private dispatchingInput = false;
     private destroyed = false;
     private timer = 0;
+    private unregisterBackend: (() => void) | undefined;
 
     constructor(
         textarea: HTMLTextAreaElement,
@@ -134,6 +144,7 @@ export class EditorController {
                 ? this.getSelection()
                 : null;
         this.destroyed = true;
+        this.unregisterBackend?.();
         this.cancelRender();
         this.listeners.abort();
         this.observer.disconnect();
@@ -199,9 +210,15 @@ export class EditorController {
         }
     }
 
-    replace(start: number, end: number, value: string): void {
+    replace(start: number, end: number, value: string, collapse = false): void {
+        this.assertWritable();
         this.preserveSelection();
-        this.textarea.setRangeText(value, start, end, "select");
+        this.textarea.setRangeText(
+            value,
+            start,
+            end,
+            collapse ? "end" : "select",
+        );
         this.history.record(this.nativeSnapshot());
         this.dispatchInput();
         this.render(false);
@@ -262,10 +279,55 @@ export class EditorController {
         this.textarea.classList.add("wiked-lite-native");
         this.textarea.setAttribute("aria-hidden", "true");
         this.textarea.setAttribute("tabindex", "-1");
+        this.unregisterBackend = registerEditBoxBackend(this.textarea, {
+            focus: () => editor.focus({ preventScroll: true }),
+            read: () => this.textarea.value,
+            replaceSelection: (text) => {
+                const { start, end } = this.getSelection();
+                this.replace(start, end, text, true);
+            },
+            write: (text) => this.writeFromTool(text, false),
+            writePreservingPosition: (text) => this.writeFromTool(text, true),
+        });
         this.observer.observe(document.documentElement, {
             childList: true,
             subtree: true,
         });
+    }
+
+    private writeFromTool(text: string, preservePosition: boolean): void {
+        this.assertWritable();
+        this.preserveSelection();
+        const editor = this.surface.editor;
+        const left = editor.scrollLeft;
+        const top = editor.scrollTop;
+        const selection = preservePosition
+            ? this.getSelection()
+            : { start: text.length, end: text.length };
+        this.textarea.value = text;
+        this.textarea.setSelectionRange(
+            Math.min(selection.start, text.length),
+            Math.min(selection.end, text.length),
+        );
+        this.history.record(this.nativeSnapshot());
+        this.dispatchInput();
+        this.contributions.sourceChanged();
+        this.render(false);
+        if (preservePosition) {
+            editor.scrollLeft = left;
+            editor.scrollTop = top;
+        }
+    }
+
+    private assertWritable(): void {
+        if (this.destroyed) {
+            throw new Error("The source editor has been closed.");
+        }
+        if (this.composing) {
+            throw new Error(
+                "Finish composing text before applying an editor action.",
+            );
+        }
     }
 
     private cancelRender(): void {

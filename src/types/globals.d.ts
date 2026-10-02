@@ -1,4 +1,14 @@
-/** Build globals and Vue template context for wikEd Lite. */
+/**
+ * @file src/types/globals.d.ts
+ * Purpose: Build globals and Vue template context for wikEd Lite.
+ *
+ * Table of contents:
+ * 1. Imports
+ * 2. RawTemplateContext
+ * 3. TemplateContext
+ * 4. Ambient declarations
+ * 5. Exports
+ */
 
 import type * as Dialog from "../features/formatter/dialog.ts";
 import type { LogLevel } from "../shared/logging.ts";

@@ -1,4 +1,14 @@
-/** Lifecycle policies for enhanced and native editor surfaces. */
+/**
+ * @file src/features/editor/lifecycle.ts
+ * Purpose: Lifecycle policies for enhanced and native editor surfaces.
+ *
+ * Table of contents:
+ * 1. Imports
+ * 2. CompositionSubmitPorts
+ * 3. NativeFocusPorts
+ * 4. createCompositionSubmitHandler
+ * 5. restoreNativeSelectionAndFocus
+ */
 
 import type { EditorSnapshot } from "./history.ts";
 

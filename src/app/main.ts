@@ -1,4 +1,11 @@
-/** Composition root: binds host adapters to editor use cases and UI. */
+/**
+ * @file src/app/main.ts
+ * Purpose: Composition root: binds host adapters to editor use cases and UI.
+ *
+ * Table of contents:
+ * 1. Imports
+ * 2. start
+ */
 
 import { createEditorServices } from "./editor-services.ts";
 import { createFormatterSettingsStore } from "../platform/browser/formatter-settings.ts";

@@ -1,4 +1,12 @@
-/** Runtime invariants for the standalone wikEd Lite package. */
+/**
+ * @file tests/runtime-invariants.test.ts
+ * Purpose: Runtime invariants for the standalone wikEd Lite package.
+ *
+ * Table of contents:
+ * 1. Imports
+ * 2. Test scenarios
+ * 3. metadataAt
+ */
 
 import assert from "node:assert/strict";
 import test from "node:test";

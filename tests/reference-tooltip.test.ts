@@ -1,3 +1,13 @@
+/**
+ * @file tests/reference-tooltip.test.ts
+ * Purpose: tests / reference tooltip.test module.
+ *
+ * Table of contents:
+ * 1. Imports
+ * 2. rect
+ * 3. Test scenarios
+ */
+
 import assert from "node:assert/strict";
 import test from "node:test";
 import {

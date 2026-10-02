@@ -1,4 +1,72 @@
-/** Deterministic, conservative wikitext formatting operations. */
+/**
+ * @file src/domain/formatter.ts
+ * Purpose: Deterministic, conservative wikitext formatting operations.
+ *
+ * Table of contents:
+ * 1. Imports
+ * 2. CharacterWidthRatio
+ * 3. FirstParameterLayout
+ * 4. SubsequentParameterLayout
+ * 5. FormatterOptions
+ * 6. FormatterResult
+ * 7. BlockTemplateLine
+ * 8. BlockParameterLine
+ * 9. BlockParameterCell
+ * 10. BlockTemplateColumn
+ * 11. BlockTemplateLayout
+ * 12. TextReplacement
+ * 13. FormatterNestingState
+ * 14. FormatterVariableConstruct
+ * 15. Constants and state
+ * 16. formatWikitext
+ * 17. resolveFormatterOptions
+ * 18. isValidIndentSpaces
+ * 19. resolveSubsequentParameterLayout
+ * 20. shouldFormatBlockTemplates
+ * 21. normalizeBasicLayout
+ * 22. normalizeWikitableSpacing
+ * 23. addMarkerSpacingReplacement
+ * 24. addCellSpacingReplacement
+ * 25. findCellSeparator
+ * 26. addEmptyInlineCellSpacingReplacement
+ * 27. getWikitableCellMarkerLength
+ * 28. findLineContentEnd
+ * 29. skipHorizontalWhitespace
+ * 30. applyTextReplacements
+ * 31. ensureBlankLinesAroundHeadings
+ * 32. numberExplanatoryFootnoteReferenceArguments
+ * 33. findFootnoteInsertionPoint
+ * 34. formatBlockTemplates
+ * 35. scanBlockTemplateLines
+ * 36. isFormatterLineActive
+ * 37. scanFormatterNesting
+ * 38. consumeFormatterComment
+ * 39. consumeFormatterVariable
+ * 40. consumeFormatterStructure
+ * 41. getTemplateColumns
+ * 42. needsColumnMeasurements
+ * 43. updateEqualsWidths
+ * 44. shouldAlignCellSeparator
+ * 45. updateContentWidths
+ * 46. getLayoutCells
+ * 47. getOrCreateColumns
+ * 48. getOrCreateColumn
+ * 49. parseBlockParameterLine
+ * 50. formatBlockLine
+ * 51. formatTemplateLine
+ * 52. getBlockIndentation
+ * 53. formatLineWithPreservedTail
+ * 54. formatParameterLine
+ * 55. parseBlockParameterCells
+ * 56. parseBlockParameterCell
+ * 57. formatParameterSegment
+ * 58. formatParameterCell
+ * 59. getDisplayWidth
+ * 60. protectOpaqueSource
+ * 61. protectSourceRanges
+ * 62. createPlaceholder
+ * 63. restoreProtectedValues
+ */
 
 import {
     type ParsedTemplateCall,

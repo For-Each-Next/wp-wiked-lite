@@ -1,4 +1,13 @@
-/** Installs the build-injected wikEd Lite stylesheet once. */
+/**
+ * @file src/features/editor/styles.ts
+ * Purpose: Installs the build-injected wikEd Lite stylesheet once.
+ *
+ * Table of contents:
+ * 1. Constants and state
+ * 2. installWikEdLiteStyles
+ * 3. installWikEdLiteFrameStyles
+ * 4. getEditorStyles
+ */
 
 let installed = false;
 let styleNonce = "";

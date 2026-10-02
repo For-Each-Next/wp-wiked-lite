@@ -1,4 +1,33 @@
-/** Database-scoped MediaWiki namespace prefixes used in wikitext. */
+/**
+ * @file src/domain/wiki-titles.ts
+ * Purpose: Database-scoped MediaWiki namespace prefixes used in wikitext.
+ *
+ * Table of contents:
+ * 1. NamespacePrefixMap
+ * 2. NamespaceIdMap
+ * 3. NamespaceCatalog
+ * 4. NamespaceDatabaseName
+ * 5. NamespaceSource
+ * 6. Constants and state
+ * 7. decodeNamespaceCatalog
+ * 8. normalizeNamespacePrefix
+ * 9. normalizeWikitextTitleKey
+ * 10. getNamespaceId
+ * 11. getNamespacePrefixes
+ * 12. getNamespaceIds
+ * 13. stripNamespacePrefix
+ * 14. formatNamespaceTitle
+ * 15. decodeNamespacePrefixes
+ * 16. readNamespaceAliases
+ * 17. readNamespaceId
+ * 18. readNamespaceName
+ * 19. readOptionalString
+ * 20. readRecord
+ * 21. invalidSiteinfoError
+ * 22. uniquePrefixes
+ * 23. createNamespaceIds
+ * 24. readEnteredNamespacePrefix
+ */
 
 type NamespacePrefixMap = Readonly<Record<number, readonly string[]>>;
 

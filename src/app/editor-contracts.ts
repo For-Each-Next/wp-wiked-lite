@@ -1,4 +1,11 @@
-/** Contracts between the wikEd Lite composition root and editor UI. */
+/**
+ * @file src/app/editor-contracts.ts
+ * Purpose: Contracts between the wikEd Lite composition root and editor UI.
+ *
+ * Table of contents:
+ * 1. Imports
+ * 2. EditorServices
+ */
 
 import type { ActionNotifier } from "../shared/notifications.ts";
 import type { Logger } from "../shared/logging.ts";

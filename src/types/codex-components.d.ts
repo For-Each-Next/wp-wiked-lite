@@ -1,5 +1,14 @@
 /**
- * Shared Codex component types used in Vue templates.
+ * @file src/types/codex-components.d.ts
+ * Purpose: Shared Codex component types used in Vue templates.
+ *
+ * Table of contents:
+ * 1. CodexModule
+ * 2. OpenTemplateSlot
+ * 3. OpenTemplateSlots
+ * 4. ComponentWithOpenSlots
+ * 5. Ambient declarations
+ * 6. Exports
  */
 
 type CodexModule = typeof import("@wikimedia/codex");

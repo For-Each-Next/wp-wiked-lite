@@ -1,3 +1,15 @@
+/**
+ * @file tests/formatter-settings.test.ts
+ * Purpose: tests / formatter settings.test module.
+ *
+ * Table of contents:
+ * 1. Imports
+ * 2. Test scenarios
+ * 3. createInvalidSettings
+ * 4. createConfiguredSettings
+ * 5. MemorySettingsStorage
+ */
+
 import assert from "node:assert/strict";
 import test from "node:test";
 

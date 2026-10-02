@@ -1,4 +1,13 @@
-/** Formatter dialog contribution; independent of editor discovery and editing. */
+/**
+ * @file src/features/formatter/action.ts
+ * Purpose: Formatter dialog contribution; independent of editor discovery and editing.
+ *
+ * Table of contents:
+ * 1. Imports
+ * 2. Constants and state
+ * 3. FormatterEditor
+ * 4. createFormatterAction
+ */
 
 import type { EditorServices } from "../../app/editor-contracts.ts";
 import { formatWikitext } from "../../domain/formatter.ts";

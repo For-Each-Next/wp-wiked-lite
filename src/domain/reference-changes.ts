@@ -1,4 +1,36 @@
-/** Tracks reversible reference-field edits without retaining full source snapshots. */
+/**
+ * @file src/domain/reference-changes.ts
+ * Purpose: Tracks reversible reference-field edits without retaining full source snapshots.
+ *
+ * Table of contents:
+ * 1. Imports
+ * 2. ReferenceFieldChange
+ * 3. ReferenceChangeTarget
+ * 4. TrackedField
+ * 5. SourceDelta
+ * 6. ChangeState
+ * 7. Constants and state
+ * 8. ReferenceChangeTracker
+ * 9. trackEditedField
+ * 10. citationParameters
+ * 11. trackRenamedField
+ * 12. collectParameterNames
+ * 13. rebaseRenamedSibling
+ * 14. trackInsertedField
+ * 15. findValueContainer
+ * 16. rebaseUntouched
+ * 17. relocateBlankParameter
+ * 18. rebaseContainingRange
+ * 19. shiftRange
+ * 20. touches
+ * 21. buildAddedFieldReset
+ * 22. trimmedRange
+ * 23. sameRange
+ * 24. isValidRange
+ * 25. applyReplacement
+ * 26. findSourceChange
+ * 27. fingerprint
+ */
 
 import type {
     ReferenceEditRange,

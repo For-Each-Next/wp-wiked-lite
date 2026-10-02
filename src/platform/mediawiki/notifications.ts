@@ -1,4 +1,17 @@
-/** Native MediaWiki action notification adapter. */
+/**
+ * @file src/platform/mediawiki/notifications.ts
+ * Purpose: Native MediaWiki action notification adapter.
+ *
+ * Table of contents:
+ * 1. Imports
+ * 2. MediaWikiNotificationOptions
+ * 3. MediaWikiNotify
+ * 4. createActionNotifier
+ * 5. createNotificationOptions
+ * 6. toMediaWikiType
+ * 7. normalizeTagSegment
+ * 8. notifyWithMediaWiki
+ */
 
 import type {
     ActionNotification,

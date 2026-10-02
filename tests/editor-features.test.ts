@@ -1,3 +1,22 @@
+/**
+ * @file tests/editor-features.test.ts
+ * Purpose: tests / editor features.test module.
+ *
+ * Table of contents:
+ * 1. Imports
+ * 2. Test scenarios
+ * 3. testLiveLinkChecks
+ * 4. testEditorPresentationSettings
+ * 5. testReferenceSettings
+ * 6. testOptionalWholePageSource
+ * 7. FeatureHarness
+ * 8. Deferred
+ * 9. deferred
+ * 10. missing
+ * 11. settlePromises
+ * 12. FakeTimer
+ */
+
 import assert from "node:assert/strict";
 import test from "node:test";
 

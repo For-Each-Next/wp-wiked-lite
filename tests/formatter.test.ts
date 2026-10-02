@@ -1,3 +1,13 @@
+/**
+ * @file tests/formatter.test.ts
+ * Purpose: tests / formatter.test module.
+ *
+ * Table of contents:
+ * 1. Imports
+ * 2. Test scenarios
+ * 3. Constants and state
+ */
+
 import assert from "node:assert/strict";
 import test from "node:test";
 import { formatWikitext } from "../src/domain/formatter.ts";

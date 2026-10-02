@@ -1,4 +1,23 @@
-/** Formatter choices shared by the dialog and storage adapter. */
+/**
+ * @file src/domain/formatter-settings.ts
+ * Purpose: Formatter choices shared by the dialog and storage adapter.
+ *
+ * Table of contents:
+ * 1. Imports
+ * 2. FormatterSettings
+ * 3. EditorFeatureSettings
+ * 4. createDefaultFormatterSettings
+ * 5. getEditorFeatureSettings
+ * 6. withEditorFeatureSettings
+ * 7. parseFormatterSettings
+ * 8. parseFormatterOptions
+ * 9. parseEditorFeatures
+ * 10. isRecord
+ * 11. isFirstParameterLayout
+ * 12. isSubsequentParameterLayout
+ * 13. isCharacterWidthRatio
+ * 14. isIndentSpaces
+ */
 
 import type {
     FirstParameterLayout,

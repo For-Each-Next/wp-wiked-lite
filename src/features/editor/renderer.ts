@@ -1,4 +1,17 @@
-/** Renders highlighted source using text nodes exclusively. */
+/**
+ * @file src/features/editor/renderer.ts
+ * Purpose: Renders highlighted source using text nodes exclusively.
+ *
+ * Table of contents:
+ * 1. Imports
+ * 2. Constants and state
+ * 3. renderSegments
+ * 4. createHighlightedFragment
+ * 5. appendHighlightedSegments
+ * 6. getEntityTitle
+ * 7. decodeCharacterReference
+ * 8. markLinkCheck
+ */
 
 import {
     type HighlightOptions,

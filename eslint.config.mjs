@@ -1,3 +1,13 @@
+/**
+ * @file eslint.config.mjs
+ * Purpose: eslint.config module.
+ *
+ * Table of contents:
+ * 1. Imports
+ * 2. Constants and state
+ * 3. Exports
+ */
+
 import js from "@eslint/js";
 import { defineConfig, globalIgnores } from "eslint/config";
 import globals from "globals";

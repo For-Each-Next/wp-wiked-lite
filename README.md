@@ -1,77 +1,59 @@
 # wikEd Lite
 
-A lightweight MediaWiki source-editor gadget for highlighting and formatting
-wikitext.
+[English](README.md) · [繁體中文](README.zh-Hant.md) · [简体中文](README.zh-Hans.md)
 
-wikEd Lite builds on [Cacycle][1]'s [wikEd][2], focusing on its syntax
-highlighting and formatting features. Thanks to Cacycle for releasing wikEd
-into the public domain. Special thanks to [Remember the dot][3], whose
-[syntax highlighter][4] inspired live highlighting as you type.
+Highlight, inspect, and format wikitext while editing a MediaWiki page.
 
-This gadget is mainly for personal use and was designed for the
-[Chinese Wikipedia][5]. It may not suit everyone's needs or work as well on
-other projects.
+<!-- toc:start -->
 
-All of its code was generated with GPT, and I have no idea how it works.
-If you have questions or suggestions for improvements, feel free to ask an AI
-assistant to examine and improve the code.
+## Contents
+
+- [Features](#features)
+- [Installation](#installation)
+- [How to use](#how-to-use)
+- [Screenshots](#screenshots)
+- [Help](#help)
+- [License](#license)
+
+<!-- toc:end -->
 
 ## Features
 
-![Previewing a citation](docs/images/screenshot-01.png)
-![Previewing a template-wrapped interwiki link](docs/images/screenshot-02.png)
+- Live syntax highlighting with optional reference and page previews.
+- Inspect and edit citation fields directly from a reference popup.
+- Format a selection or the whole page, with optional template alignment and redirect resolution.
+- Keep every edit synchronized with the source submitted by MediaWiki.
 
-Screenshots show an offline example at a 1024-pixel viewport width.
+## Installation
 
-### Syntax highlighting
+Choose one installation method:
 
-- Live highlighting based on wikEd's color scheme, with optional alternating
-  background colors for consecutive groups of references.
-- Optional hover previews for `<ref name="foo" />` and `{{r|foo}}`, showing
-  reference text and citation-template fields in a readable layout.
-- Optional page previews when hovering over page titles in wikilinks or
-  supported templates such as `{{link-en}}`, for both local and foreign pages.
-- Optional missing-page checks that mark missing page titles in red.
+1. **MediaWiki:** download [wiked_lite.min.js](https://github.com/For-Each-Next/wp-wiked-lite/releases/latest/download/wiked_lite.min.js) from the latest GitHub release and copy its contents into your wiki’s `Special:MyPage/common.js`. Site administrators can install it as a gadget.
+2. **Tampermonkey:** install [wiked_lite.user.js](https://github.com/For-Each-Next/wp-wiked-lite/releases/latest/download/wiked_lite.user.js). This version includes readable code and userscript metadata.
 
-### Formatting
-
-- General wikitext cleanup based on wikEd, applied to a selection or the
-  whole page.
-- Optional indentation and parameter alignment for multiline templates.
-- Optional redirect target "fixing".
-
-### Trivia
-
-- wikEd Lite is designed specifically for Wikitext. For other content models,
-  such as Lua, you can choose to load [CodeMirror][9] automatically.
+Reload an edit page after installation. To remove the tool, delete its code from your common.js or disable the userscript. Settings are stored in this browser on the current wiki.
 
 ## How to use
 
-From the [latest release](../../releases/latest), copy the contents of
-[wiked_lite.min.js](https://github.com/For-Each-Next/wp-wiked-lite/releases/latest/download/wiked_lite.min.js)
-into `Special:MyPage/common.js` or add it as a site gadget.
-Tampermonkey users can install
-[wiked_lite.user.js](https://github.com/For-Each-Next/wp-wiked-lite/releases/latest/download/wiked_lite.user.js)
-instead.
+1. Open a page with **Edit source**.
+2. Open **wikEd Lite panel** in the page tools.
+3. Choose formatting options or highlighting settings. The primary action applies your choices to the current edit.
+4. Use **More → Save settings** to keep these preferences for later visits.
+5. Review the source before using MediaWiki’s own publish action.
 
-On a wikitext edit page, open the **wikEd Lite panel** from the page tools to
-format wikitext or change preferences. Use the main button to apply your choices
-to this edit. To save the panel's current settings as your default on this site
-in this browser, choose **More → Save settings**.
+The panel formats wikitext; it does not publish edits. Optional page lookups require a network connection. Current browsers and the current Wikimedia ResourceLoader APIs are supported. For non-wikitext models, you can enable the host CodeMirror editor in settings.
+
+## Screenshots
+
+![Inspecting an article reference](docs/images/screenshot-01.png)
+![Formatting panel](docs/images/screenshot-03.png)
+
+Captured from the running tool using the [BanG Dream! article, revision 94028176](https://zh.wikipedia.org/w/index.php?oldid=94028176). These are offline examples; see [screenshot sources and attribution](docs/screenshots.md).
+
+## Help
+
+Read [configuration](docs/configuration.md) and [panel behavior](docs/control-panel.md). Report a problem in [GitHub issues](https://github.com/For-Each-Next/wp-wiked-lite/issues), including your browser, wiki, and steps to reproduce it. For development, see [Contributing](CONTRIBUTING.md).
 
 ## License
 
-Because wikEd Lite builds on [Cacycle][1]'s public-domain [wikEd][2] and its
-code was generated with GPT, the repository owner does not claim copyright in
-the project's own material. To the extent the owner holds any rights in that
-material, he dedicates those rights to the public domain under
-[CC0 1.0](LICENSE). Third-party dependencies and Wikimedia content retain their
-own terms. Bundled Codex icon paths remain MIT-licensed; see
-[third-party notices](THIRD-PARTY-NOTICES.md).
-
-[1]: https://en.wikipedia.org/wiki/User:Cacycle
-[2]: https://en.wikipedia.org/wiki/User:Cacycle/wikEd
-[3]: https://en.wikipedia.org/wiki/User:Remember_the_dot
-[4]: https://www.mediawiki.org/wiki/User:Remember_the_dot/Syntax_highlighter
-[5]: https://zh.wikipedia.org/
-[9]: https://www.mediawiki.org/wiki/Extension:CodeMirror
+Based on [Cacycle’s wikEd](https://en.wikipedia.org/wiki/User:Cacycle/wikEd), with live-highlighting inspiration from [Remember the dot](https://www.mediawiki.org/wiki/User:Remember_the_dot/Syntax_highlighter). Project-owned material is dedicated under [CC0 1.0](LICENSE); Codex icons retain the MIT license. See [third-party notices](THIRD-PARTY-NOTICES.md). Wikipedia fixture text retains CC BY-SA 4.0 attribution.

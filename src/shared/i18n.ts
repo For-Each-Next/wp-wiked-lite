@@ -1,4 +1,15 @@
-/** Typed plain-text translation with explicit locale selection. */
+/**
+ * @file src/shared/i18n.ts
+ * Purpose: Typed plain-text translation with explicit locale selection.
+ *
+ * Table of contents:
+ * 1. MessageCatalog
+ * 2. MessageValues
+ * 3. LocaleCatalog
+ * 4. createI18n
+ * 5. resolveLocale
+ * 6. normalizeLocale
+ */
 
 type MessageCatalog = Record<string, string>;
 type MessageValues = Record<string, string | number>;

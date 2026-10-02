@@ -1,4 +1,13 @@
-/** Validate a release tag and extract its reviewed changelog entry. */
+/**
+ * @file scripts/release-notes.mjs
+ * Purpose: Validate a release tag and extract its reviewed changelog entry.
+ *
+ * Table of contents:
+ * 1. Imports
+ * 2. Constants and state
+ * 3. Initialization and execution
+ */
+
 import { readFile, writeFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 

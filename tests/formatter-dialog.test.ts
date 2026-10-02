@@ -1,3 +1,15 @@
+/**
+ * @file tests/formatter-dialog.test.ts
+ * Purpose: tests / formatter dialog.test module.
+ *
+ * Table of contents:
+ * 1. Imports
+ * 2. Constants and state
+ * 3. Test scenarios
+ * 4. harness
+ * 5. createVueHarness
+ */
+
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";

@@ -9,7 +9,22 @@ destructive actions from progressive actions. Use inline Codex messages for
 actionable errors, accessible progress for pending work, and native MediaWiki
 notifications for brief success feedback.
 
-wikEd Lite is a working gadget that other MediaWiki gadget authors can learn from.
+<!-- toc:start -->
+
+## Contents
+
+- [Scope](#scope)
+- [Folder names and ownership](#folder-names-and-ownership)
+- [Dependencies and startup](#dependencies-and-startup)
+- [Editor ownership](#editor-ownership)
+- [Reading path](#reading-path)
+- [Editor interoperability](#editor-interoperability)
+
+<!-- toc:end -->
+
+## Scope
+
+wikEd Lite is an independently installable source-editor gadget.
 Its architecture separates runtime environments through explicit service contracts,
 small startup modules, and independently testable editor features. This project
 uses ordinary functions and TypeScript interfaces for dependency injection.
@@ -85,7 +100,7 @@ optional contributions. Asynchronous lookups discard stale results after source,
 settings, cache, or lifecycle changes. Formatting protects opaque source ranges;
 article text and translated content are rendered as text.
 
-## Reading path for another gadget
+## Reading path
 
 1. Read `app/browser.ts` and `app/main.ts` to see how startup and host dependencies
    are assembled.
@@ -98,7 +113,14 @@ article text and translated content are rendered as text.
 5. Read `package.json`, the lint configuration, and `.github/workflows/` for the
    same checks used locally, on pull requests, and before a release.
 
-Borrow these boundaries and verification practices for another gadget. Its domain
-rules, features, messages, configuration, metadata, artifact names, and licensing
-need to describe that gadget. Keep the source tree small until additional features
-actually need new modules.
+Keep domain rules, features, messages, metadata, artifact names, and licensing local
+to this project. Keep the source tree small until additional features need new modules.
+
+## Editor interoperability
+
+The visible editor registers a textarea-local backend at
+`Symbol.for("mediawiki-gadgets.edit-box-backend")`. Independent tools can read,
+write, preserve position, replace a selection, and focus it without importing this
+project. Every accepted update reaches the submitted textarea and undo history.
+Mutations reject active IME composition and disposed editors before changing text.
+Disposal unregisters the owned backend. Native input events remain supported.

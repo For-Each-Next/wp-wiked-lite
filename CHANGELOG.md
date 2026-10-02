@@ -1,5 +1,35 @@
 # Changelog
 
+<!-- toc:start -->
+
+## Contents
+
+- [Unreleased](#unreleased)
+- [\[0.2.2\] - 2026-10-03](#022---2026-10-03)
+  - [Changed](#changed)
+- [\[0.2.1\] - 2026-10-02](#021---2026-10-02)
+  - [Changed](#changed-1)
+- [\[0.2.0\] - 2026-09-27](#020---2026-09-27)
+  - [Added](#added)
+  - [Changed](#changed-2)
+  - [Fixed](#fixed)
+- [\[0.1.0\] - 2026-09-27](#010---2026-09-27)
+  - [Added](#added-1)
+
+<!-- toc:end -->
+
+## Unreleased
+
+## [0.2.2] - 2026-10-03
+
+### Changed
+
+- Add an independent editor contract that preserves source, selection, viewport, and undo history.
+- Reject external edits during active text composition and protect backend ownership on cleanup.
+- Use semantic Codex dialog-launch buttons and consistent readable/userscript artifact headers.
+- Harmonize three-language user guides, contributor documentation, and file contents checks.
+- Recreate documentation screenshots from BanG Dream! article revision 94028176.
+
 ## [0.2.1] - 2026-10-02
 
 ### Changed

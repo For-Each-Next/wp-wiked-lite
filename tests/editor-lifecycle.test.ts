@@ -1,4 +1,11 @@
-/** Native-source editor lifecycle behavior. */
+/**
+ * @file tests/editor-lifecycle.test.ts
+ * Purpose: Native-source editor lifecycle behavior.
+ *
+ * Table of contents:
+ * 1. Imports
+ * 2. Test scenarios
+ */
 
 import assert from "node:assert/strict";
 import test from "node:test";

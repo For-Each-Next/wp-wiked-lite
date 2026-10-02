@@ -1,3 +1,26 @@
+/**
+ * @file tests/highlighter.test.ts
+ * Purpose: tests / highlighter.test module.
+ *
+ * Table of contents:
+ * 1. Imports
+ * 2. Constants and state
+ * 3. aliases
+ * 4. classesAt
+ * 5. segmentAt
+ * 6. assertHasClass
+ * 7. assertLacksClass
+ * 8. assertEachHasClass
+ * 9. assertEachLacksClass
+ * 10. assertRangeHasClass
+ * 11. htmlContentClassesAt
+ * 12. ReferenceContainerFixture
+ * 13. createNestedCitationReference
+ * 14. assertReferenceContainerNesting
+ * 15. assertReferenceContainerBoundaries
+ * 16. Test scenarios
+ */
+
 import assert from "node:assert/strict";
 import test from "node:test";
 import { decodeNamespaceCatalog } from "../src/domain/wiki-titles.ts";

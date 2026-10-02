@@ -1,4 +1,14 @@
-/** Native-reference queries built on generic tag syntax. */
+/**
+ * @file src/domain/wikitext/references.ts
+ * Purpose: Native-reference queries built on generic tag syntax.
+ *
+ * Table of contents:
+ * 1. Imports
+ * 2. RefTag
+ * 3. findRefTags
+ * 4. findNamedRefTag
+ * 5. isCompleteRefTag
+ */
 
 import { findWikitextTags, type WikitextTag } from "./tags.ts";
 import type { WikitextOptions } from "./opaque-ranges.ts";

@@ -1,4 +1,12 @@
-/** Balanced internal-link syntax for shared wikitext operations. */
+/**
+ * @file src/domain/wikitext/links.ts
+ * Purpose: Balanced internal-link syntax for shared wikitext operations.
+ *
+ * Table of contents:
+ * 1. Imports
+ * 2. WikilinkRange
+ * 3. findWikilinkRanges
+ */
 
 import {
     findOpaqueRanges,

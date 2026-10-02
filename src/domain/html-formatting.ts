@@ -1,4 +1,16 @@
-/** Conservative spelling and attribute spacing for existing HTML-like tags. */
+/**
+ * @file src/domain/html-formatting.ts
+ * Purpose: Conservative spelling and attribute spacing for existing HTML-like tags.
+ *
+ * Table of contents:
+ * 1. Imports
+ * 2. TagReplacement
+ * 3. Constants and state
+ * 4. formatHtmlTags
+ * 5. normalizeOpeningTag
+ * 6. normalizeAttributes
+ * 7. skipWhitespace
+ */
 
 import { normalizeInlineStyle } from "./inline-style-formatting.ts";
 import { type SourceRange, wikitext } from "./wikitext/index.ts";

@@ -1,3 +1,14 @@
+/**
+ * @file tests/styles.test.ts
+ * Purpose: tests / styles.test module.
+ *
+ * Table of contents:
+ * 1. Imports
+ * 2. Constants and state
+ * 3. Test scenarios
+ * 4. getStyleRule
+ */
+
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";

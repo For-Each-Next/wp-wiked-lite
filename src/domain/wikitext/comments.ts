@@ -1,4 +1,11 @@
-/** HTML-comment syntax queries for shared wikitext operations. */
+/**
+ * @file src/domain/wikitext/comments.ts
+ * Purpose: HTML-comment syntax queries for shared wikitext operations.
+ *
+ * Table of contents:
+ * 1. WikitextComment
+ * 2. findWikitextComments
+ */
 
 export interface WikitextComment {
     closed: boolean;

@@ -1,4 +1,18 @@
-/** Formatter-action failure behavior at the ResourceLoader boundary. */
+/**
+ * @file tests/formatter-open.test.ts
+ * Purpose: Formatter-action failure behavior at the ResourceLoader boundary.
+ *
+ * Table of contents:
+ * 1. Imports
+ * 2. Test scenarios
+ * 3. reportFormatterLoadFailure
+ * 4. createServices
+ * 5. installFormatterEnvironment
+ * 6. installFormatterGlobals
+ * 7. captureGlobals
+ * 8. restoreGlobals
+ * 9. createLogOutput
+ */
 
 import assert from "node:assert/strict";
 import test from "node:test";

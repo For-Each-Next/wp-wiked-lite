@@ -1,4 +1,16 @@
-/** Read-only Page Content Service summaries for link previews. */
+/**
+ * @file src/platform/mediawiki/page-summary.ts
+ * Purpose: Read-only Page Content Service summaries for link previews.
+ *
+ * Table of contents:
+ * 1. Imports
+ * 2. createPageSummaryLoader
+ * 3. fetchPageSummary
+ * 4. getNonemptyText
+ * 5. getSafeUrl
+ * 6. isWebUrl
+ * 7. asRecord
+ */
 
 import type { PageSummaryResult } from "../../domain/page-summary.ts";
 import type { PagePreviewTarget } from "../../domain/highlight-partition.ts";

@@ -1,4 +1,23 @@
-/** Build standalone MediaWiki gadget and userscript artifacts. */
+/**
+ * @file scripts/build.mjs
+ * Purpose: Build standalone MediaWiki gadget and userscript artifacts.
+ *
+ * Table of contents:
+ * 1. Imports
+ * 2. Constants and state
+ * 3. Initialization and execution
+ * 4. extractReferenceIcon
+ * 5. extractIconPath
+ * 6. cssText
+ * 7. vueTemplate
+ * 8. bundleSource
+ * 9. wrapReadableProgram
+ * 10. documentationHeader
+ * 11. mediaWikiArtifact
+ * 12. thirdPartyIconNotice
+ * 13. wrapHeaderParagraph
+ * 14. userscriptArtifact
+ */
 
 import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
@@ -247,24 +266,33 @@ function wrapReadableProgram(source) {
     ].join("\n");
 }
 
-function mediaWikiArtifact(program) {
-    const paragraphs = [manifest.description, ...description];
-    const header = [
+function documentationHeader() {
+    return [
         "/**",
-        ...paragraphs.flatMap((paragraph, index) => [
-            ...(index === 0 ? [] : [" *"]),
-            ...wrapHeaderParagraph(paragraph),
-        ]),
+        " * wikEd Lite",
+        " *",
+        ...wrapHeaderParagraph(`Purpose: ${manifest.description}`),
         " *",
         ` * @name ${manifest.name}`,
         ` * @version ${manifest.version}`,
         " * @license CC0-1.0 AND MIT",
         " *",
+        " * Table of contents:",
+        " * 1. Metadata and license notices",
+        " * 2. MediaWiki bootstrap and browser program",
+        " */",
+        "",
+        "/**",
+        ...description.flatMap((paragraph) => wrapHeaderParagraph(paragraph)),
+        " *",
         ...iconAttribution.map((line) => ` * ${line}`),
         " */",
-    ];
+    ].join("\n");
+}
+
+function mediaWikiArtifact(program) {
     return [
-        ...header,
+        documentationHeader(),
         "",
         thirdPartyIconNotice(),
         "",
@@ -310,6 +338,9 @@ function userscriptArtifact(program) {
         "// ==UserScript==",
         "// @name         wikEd Lite",
         "// @namespace    wiked-lite",
+        "// @homepageURL  https://github.com/For-Each-Next/wp-wiked-lite",
+        "// @downloadURL  https://github.com/For-Each-Next/wp-wiked-lite/releases/latest/download/wiked_lite.user.js",
+        "// @updateURL    https://github.com/For-Each-Next/wp-wiked-lite/releases/latest/download/wiked_lite.user.js",
         `// @version      ${manifest.version}`,
         `// @description  ${manifest.description}`,
         "// @license      CC0-1.0 AND MIT",
@@ -318,6 +349,8 @@ function userscriptArtifact(program) {
         "// @grant        none",
         "// @run-at       document-end",
         "// ==/UserScript==",
+        "",
+        documentationHeader(),
         "",
         thirdPartyIconNotice(),
         "",

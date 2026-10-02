@@ -1,3 +1,14 @@
+/**
+ * @file tests/release-notes.test.ts
+ * Purpose: tests / release notes.test module.
+ *
+ * Table of contents:
+ * 1. Imports
+ * 2. Constants and state
+ * 3. Test scenarios
+ * 4. extractNotes
+ */
+
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";

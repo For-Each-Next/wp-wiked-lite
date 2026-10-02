@@ -1,4 +1,15 @@
-/** Minimal Vue and Codex contracts used by wikEd Lite. */
+/**
+ * @file src/platform/mediawiki/codex.ts
+ * Purpose: Minimal Vue and Codex contracts used by wikEd Lite.
+ *
+ * Table of contents:
+ * 1. VueRef
+ * 2. VueApp
+ * 3. VueModule
+ * 4. CodexComponents
+ * 5. ResourceLoaderRequire
+ * 6. registerFormatterComponents
+ */
 
 export interface VueRef<T> {
     value: T;

@@ -1,3 +1,14 @@
+/**
+ * @file tests/editor-services.test.ts
+ * Purpose: tests / editor services.test module.
+ *
+ * Table of contents:
+ * 1. Imports
+ * 2. Test scenarios
+ * 3. dependencies
+ * 4. namespaceState
+ */
+
 import assert from "node:assert/strict";
 import test from "node:test";
 

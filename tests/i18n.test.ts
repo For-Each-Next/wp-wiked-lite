@@ -1,3 +1,12 @@
+/**
+ * @file tests/i18n.test.ts
+ * Purpose: tests / i18n.test module.
+ *
+ * Table of contents:
+ * 1. Imports
+ * 2. Test scenarios
+ */
+
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";

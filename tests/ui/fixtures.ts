@@ -1,3 +1,13 @@
+/**
+ * @file tests/ui/fixtures.ts
+ * Purpose: tests / ui / fixtures module.
+ *
+ * Table of contents:
+ * 1. Imports
+ * 2. Constants and state
+ * 3. Exports
+ */
+
 import { expect, test as base } from "@playwright/test";
 
 /** Every browser request must be handled by an explicit local test fixture. */

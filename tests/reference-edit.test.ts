@@ -1,3 +1,13 @@
+/**
+ * @file tests/reference-edit.test.ts
+ * Purpose: tests / reference edit.test module.
+ *
+ * Table of contents:
+ * 1. Imports
+ * 2. applyReplacement
+ * 3. Test scenarios
+ */
+
 import assert from "node:assert/strict";
 import test from "node:test";
 import {

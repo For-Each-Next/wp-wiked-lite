@@ -1,4 +1,35 @@
-/** Classification for magic words that share template braces. */
+/**
+ * @file src/domain/magic-words.ts
+ * Purpose: Classification for magic words that share template braces.
+ *
+ * Table of contents:
+ * 1. Imports
+ * 2. BaseTemplateHeadSyntax
+ * 3. MagicWordAliases
+ * 4. TemplateMagicWordCatalog
+ * 5. TemplateHeadSyntax
+ * 6. TemplateModifierState
+ * 7. TemplateModifier
+ * 8. MagicWordCandidate
+ * 9. classifyTemplateHead
+ * 10. classifyFunctionOrTemplate
+ * 11. isVariableInvocation
+ * 12. emptyModifierState
+ * 13. readTemplateModifier
+ * 14. createTemplateSyntax
+ * 15. createMagicWordSyntax
+ * 16. isParserVariable
+ * 17. isParserFunction
+ * 18. isInvoke
+ * 19. isTemplateModifier
+ * 20. isModifierSeparator
+ * 21. matchesAliases
+ * 22. matchesCallableAlias
+ * 23. readMagicWord
+ * 24. readHeadRange
+ * 25. splitMagicWordRanges
+ * 26. trimRange
+ */
 
 import {
     type SourceRange,

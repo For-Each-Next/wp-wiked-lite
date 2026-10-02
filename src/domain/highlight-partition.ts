@@ -1,4 +1,19 @@
-/** Resolves overlapping highlights into lossless source segments. */
+/**
+ * @file src/domain/highlight-partition.ts
+ * Purpose: Resolves overlapping highlights into lossless source segments.
+ *
+ * Table of contents:
+ * 1. Imports
+ * 2. PagePreviewTarget
+ * 3. HighlightSegment
+ * 4. HighlightRange
+ * 5. Constants and state
+ * 6. partitionHighlightRanges
+ * 7. addRangeBoundary
+ * 8. createSegment
+ * 9. getVisibleMissingTitle
+ * 10. mergeSourceRanges
+ */
 
 import type { SourceRange } from "./wikitext/index.ts";
 

@@ -1,4 +1,16 @@
-/** Best-effort persistent cache for one wiki's siteinfo response. */
+/**
+ * @file src/platform/mediawiki/siteinfo-cache.ts
+ * Purpose: Best-effort persistent cache for one wiki's siteinfo response.
+ *
+ * Table of contents:
+ * 1. Constants and state
+ * 2. SiteinfoStorage
+ * 3. SiteinfoCache
+ * 4. createSiteinfoCache
+ * 5. availableStorage
+ * 6. cacheKey
+ * 7. readRecord
+ */
 
 const CACHE_PREFIX = "wiked-lite:siteinfo:";
 const CACHE_VERSION = 1;

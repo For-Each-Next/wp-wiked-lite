@@ -1,3 +1,14 @@
+/**
+ * @file tests/reference-changes.test.ts
+ * Purpose: tests / reference changes.test module.
+ *
+ * Table of contents:
+ * 1. Imports
+ * 2. apply
+ * 3. citationEditor
+ * 4. Test scenarios
+ */
+
 import assert from "node:assert/strict";
 import test from "node:test";
 import { ReferenceChangeTracker } from "../src/domain/reference-changes.ts";

@@ -1,4 +1,20 @@
-/** Creates and styles the isolated editable surface. */
+/**
+ * @file src/features/editor/surface.ts
+ * Purpose: Creates and styles the isolated editable surface.
+ *
+ * Table of contents:
+ * 1. Imports
+ * 2. EditorSurface
+ * 3. Constants and state
+ * 4. createEditorSurface
+ * 5. loadFrameDocument
+ * 6. EditorFrameLoader
+ * 7. isEditorFrameAttached
+ * 8. copyTextareaPresentation
+ * 9. findOpaqueBackground
+ * 10. getEditorLabel
+ * 11. isIncompatibleEditor
+ */
 
 import { installWikEdLiteFrameStyles } from "./styles.ts";
 

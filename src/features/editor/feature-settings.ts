@@ -1,4 +1,22 @@
-/** Live editor behaviors controlled by persisted formatter settings. */
+/**
+ * @file src/features/editor/feature-settings.ts
+ * Purpose: Live editor behaviors controlled by persisted formatter settings.
+ *
+ * Table of contents:
+ * 1. Imports
+ * 2. MissingLinkResult
+ * 3. LinkCheckState
+ * 4. LinkCheckStatus
+ * 5. EditorFeatureController
+ * 6. EditorFeatureOptions
+ * 7. EditorFeatureTimer
+ * 8. Constants and state
+ * 9. createEditorFeatureController
+ * 10. classifyLinkCheck
+ * 11. EditorFeatureCoordinator
+ * 12. createEmptyMissingLinkResult
+ * 13. createWindowTimer
+ */
 
 import { normalizeWikitextTitleKey } from "../../domain/wiki-titles.ts";
 import type { EditorFeatureSettings } from "../../domain/formatter-settings.ts";

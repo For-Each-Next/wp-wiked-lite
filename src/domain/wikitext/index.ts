@@ -1,4 +1,13 @@
-/** Lazy queries over source text. Each operation invokes one focused scanner. */
+/**
+ * @file src/domain/wikitext/index.ts
+ * Purpose: Lazy queries over source text. Each operation invokes one focused scanner.
+ *
+ * Table of contents:
+ * 1. Imports
+ * 2. queryWikitext
+ * 3. Constants and state
+ * 4. Exports
+ */
 
 import { findWikitextComments } from "./comments.ts";
 import { findWikilinkRanges } from "./links.ts";

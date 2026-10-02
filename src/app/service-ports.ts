@@ -1,4 +1,13 @@
-/** Dependencies supplied by the host to editor use cases. */
+/**
+ * @file src/app/service-ports.ts
+ * Purpose: Dependencies supplied by the host to editor use cases.
+ *
+ * Table of contents:
+ * 1. Imports
+ * 2. FormatterSettingsStore
+ * 3. NamespaceProvider
+ * 4. EditorServiceDependencies
+ */
 
 import type { EditorServices } from "./editor-contracts.ts";
 import type { FormatterSettings } from "../domain/formatter-settings.ts";

@@ -1,4 +1,12 @@
-/** Reads editor state exposed by the current MediaWiki page. */
+/**
+ * @file src/platform/mediawiki/editor-context.ts
+ * Purpose: Reads editor state exposed by the current MediaWiki page.
+ *
+ * Table of contents:
+ * 1. getDatabaseName
+ * 2. getRevisionId
+ * 3. isSectionEditing
+ */
 
 export function getDatabaseName(): string {
     return String(mw.config.get("wgWikiID") ?? mw.config.get("wgDBname") ?? "");

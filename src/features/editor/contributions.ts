@@ -1,4 +1,13 @@
-/** Optional editor presentation, navigation, and asynchronous previews. */
+/**
+ * @file src/features/editor/contributions.ts
+ * Purpose: Optional editor presentation, navigation, and asynchronous previews.
+ *
+ * Table of contents:
+ * 1. Imports
+ * 2. EditorContributions
+ * 3. createEditorContributions
+ * 4. siteMissingLinkColor
+ */
 
 import type { EditorServices } from "../../app/editor-contracts.ts";
 import type { EditorFeatureSettings } from "../../domain/formatter-settings.ts";

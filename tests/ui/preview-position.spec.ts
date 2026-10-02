@@ -1,3 +1,17 @@
+/**
+ * @file tests/ui/preview-position.spec.ts
+ * Purpose: tests / ui / preview position.spec module.
+ *
+ * Table of contents:
+ * 1. Imports
+ * 2. Constants and state
+ * 3. Test scenarios
+ * 4. previewBounds
+ * 5. sourceLines
+ * 6. moveWithinFrame
+ * 7. mountPreviews
+ */
+
 import { fileURLToPath } from "node:url";
 
 import type { Locator, Page } from "@playwright/test";

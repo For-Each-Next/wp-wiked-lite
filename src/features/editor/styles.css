@@ -1,3 +1,11 @@
+/**
+ * @file src/features/editor/styles.css
+ * Purpose: src / features / editor / styles module.
+ *
+ * Table of contents:
+ * 1. Styles and responsive rules
+ */
+
 .wiked-lite-frame,
 .wiked-lite-editor {
     --wiked-lite-background: rgb(255, 255, 255);

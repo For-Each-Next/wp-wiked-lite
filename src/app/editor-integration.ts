@@ -1,4 +1,28 @@
-/** Discovers MediaWiki source editors and installs their contributions. */
+/**
+ * @file src/app/editor-integration.ts
+ * Purpose: Discovers MediaWiki source editors and installs their contributions.
+ *
+ * Table of contents:
+ * 1. Imports
+ * 2. Constants and state
+ * 3. CodeMirrorEditor
+ * 4. CodeMirrorConstructor
+ * 5. CodeMirrorModes
+ * 6. CodeMirrorRequire
+ * 7. startEditorIntegration
+ * 8. initialize
+ * 9. installEditor
+ * 10. shouldSkipEditorInstall
+ * 11. installCodeMirror
+ * 12. getCodeMirrorModules
+ * 13. isCodeMirrorForTextarea
+ * 14. getSourceEditorSelection
+ * 15. refreshCurrentEditor
+ * 16. installTool
+ * 17. addToolToPortlet
+ * 18. isWikitextSourcePage
+ * 19. waitForDocument
+ */
 
 import type { EditorServices } from "./editor-contracts.ts";
 import {
@@ -86,7 +110,11 @@ async function initialize(services: EditorServices): Promise<void> {
         await installCodeMirror(selection.mode);
         return;
     }
-    await mw.loader.using(["mediawiki.api", "mediawiki.util"]);
+    await mw.loader.using([
+        "mediawiki.api",
+        "mediawiki.util",
+        "@wikimedia/codex",
+    ]);
     installWikEdLiteStyles(FORMATTER_DIALOG_STYLES);
     const namespaceLoad = services.loadNamespaces();
     const openFormatter = createFormatterAction(
@@ -269,8 +297,16 @@ function installTool(openFormatter: () => Promise<void>): void {
     }
     const item = addToolToPortlet("p-cactions") ?? addToolToPortlet("p-tb");
     const link = item?.matches("a") ? item : item?.querySelector("a");
-    link?.addEventListener("click", function activate(event): void {
-        event.preventDefault();
+    if (link == null) return;
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className =
+        "cdx-button cdx-button--action-default cdx-button--weight-normal wiked-lite-tool";
+    button.textContent = msg("tool.name");
+    button.title = msg("tool.description");
+    if (link === item) button.id = TOOL_ID;
+    link.replaceWith(button);
+    button.addEventListener("click", function activate(): void {
         void openFormatter();
     });
 }

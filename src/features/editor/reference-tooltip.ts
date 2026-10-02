@@ -1,4 +1,43 @@
-/** Interactive citation previews for the isolated editor surface. */
+/**
+ * @file src/features/editor/reference-tooltip.ts
+ * Purpose: Interactive citation previews for the isolated editor surface.
+ *
+ * Table of contents:
+ * 1. Imports
+ * 2. ReferenceTooltipController
+ * 3. ReferenceTooltipOptions
+ * 4. ReferenceIconName
+ * 5. ReferenceValuePresentation
+ * 6. ReferenceFieldKind
+ * 7. TooltipEditing
+ * 8. Constants and state
+ * 9. attachReferenceTooltips
+ * 10. applyPlacement
+ * 11. applyTooltipBridge
+ * 12. applyPlacementSide
+ * 13. createTooltip
+ * 14. readReferenceInput
+ * 15. referenceEditLabel
+ * 16. referenceEditUnavailable
+ * 17. setInlineSource
+ * 18. readInlineSource
+ * 19. createTooltipDetails
+ * 20. createTooltipNote
+ * 21. copyTooltipPresentation
+ * 22. createTooltipRow
+ * 23. createTooltipTitle
+ * 24. createCitationTitle
+ * 25. findReferenceAnchor
+ * 26. isPagePreviewTarget
+ * 27. sameReference
+ * 28. normalizeDelay
+ * 29. getDocumentView
+ * 30. isVisibleRect
+ * 31. clamp
+ * 32. createReferenceIcon
+ * 33. appendReferenceValue
+ * 34. createReferenceSourceLink
+ */
 
 import {
     buildReferenceFieldInsertion,

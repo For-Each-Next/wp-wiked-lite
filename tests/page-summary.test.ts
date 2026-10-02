@@ -1,3 +1,16 @@
+/**
+ * @file tests/page-summary.test.ts
+ * Purpose: tests / page summary.test module.
+ *
+ * Table of contents:
+ * 1. Imports
+ * 2. StubResponse
+ * 3. RecordedRequest
+ * 4. Test scenarios
+ * 5. queryPage
+ * 6. stubFetch
+ */
+
 import assert from "node:assert/strict";
 import test from "node:test";
 

@@ -1,4 +1,15 @@
-/** Editor use cases. All host and network access arrives through ports. */
+/**
+ * @file src/app/editor-services.ts
+ * Purpose: Editor use cases. All host and network access arrives through ports.
+ *
+ * Table of contents:
+ * 1. Imports
+ * 2. createEditorServices
+ * 3. loadCurrentPageSource
+ * 4. findMissingLinks
+ * 5. resolveRedirects
+ * 6. collectRedirectTitles
+ */
 
 import type { EditorServices } from "./editor-contracts.ts";
 import { collectLinkHelperTitles } from "../domain/highlighter.ts";

@@ -1,4 +1,24 @@
-/** Build-injected Codex formatter-dialog component. */
+/**
+ * @file src/features/formatter/dialog.ts
+ * Purpose: Build-injected Codex formatter-dialog component.
+ *
+ * Table of contents:
+ * 1. Imports
+ * 2. FormatterDialogSelection
+ * 3. FirstParameterMode
+ * 4. FormatterDialogOperation
+ * 5. SubsequentParameterMode
+ * 6. DialogTab
+ * 7. FormattingScope
+ * 8. FormatterDialogOptions
+ * 9. PreferenceSettings
+ * 10. PreferenceBindings
+ * 11. DialogBindings
+ * 12. Constants and state
+ * 13. createFormatterDialogComponent
+ * 14. createFormatterDialogBindings
+ * 15. normalizeIndentation
+ */
 
 import {
     type CharacterWidthRatio,

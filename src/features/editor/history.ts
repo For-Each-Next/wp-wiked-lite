@@ -1,4 +1,21 @@
-/** Bounded edit history for the rerendered wikEd Lite surface. */
+/**
+ * @file src/features/editor/history.ts
+ * Purpose: Bounded edit history for the rerendered wikEd Lite surface.
+ *
+ * Table of contents:
+ * 1. Constants and state
+ * 2. EditorSnapshot
+ * 3. EditRecord
+ * 4. HistoryDirection
+ * 5. HistoryShortcut
+ * 6. EditorHistory
+ * 7. getHistoryDirection
+ * 8. createEditRecord
+ * 9. sharedPrefixLength
+ * 10. sharedSuffixLength
+ * 11. replaceRange
+ * 12. getSelection
+ */
 
 const MAX_HISTORY_ENTRIES = 500;
 

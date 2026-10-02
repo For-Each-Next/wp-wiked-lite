@@ -1,4 +1,31 @@
-/** Current-wiki namespace and magic-word discovery through siteinfo. */
+/**
+ * @file src/platform/mediawiki/namespaces.ts
+ * Purpose: Current-wiki namespace and magic-word discovery through siteinfo.
+ *
+ * Table of contents:
+ * 1. Imports
+ * 2. WikiNamespaceApi
+ * 3. WikiNamespaceResolver
+ * 4. Constants and state
+ * 5. LoadedSiteinfo
+ * 6. MagicWordRecord
+ * 7. createWikiNamespaceResolver
+ * 8. readCachedState
+ * 9. loadSiteinfo
+ * 10. decodeSiteinfo
+ * 11. decodeTemplateMagicWords
+ * 12. decodeImageOptions
+ * 13. decodeMagicWordRecords
+ * 14. decodeModifierAliases
+ * 15. createAliasCatalog
+ * 16. emptyAliasSets
+ * 17. emptyAliases
+ * 18. freezeAliases
+ * 19. readStringList
+ * 20. readNonemptyString
+ * 21. readRecord
+ * 22. createState
+ */
 
 import type { Logger } from "../../shared/logging.ts";
 import {

@@ -1,4 +1,17 @@
-/** Shared frame-safe geometry for article and reference hover previews. */
+/**
+ * @file src/features/editor/preview-position.ts
+ * Purpose: Shared frame-safe geometry for article and reference hover previews.
+ *
+ * Table of contents:
+ * 1. PreviewRect
+ * 2. PreviewPlacement
+ * 3. PreviewSize
+ * 4. Constants and state
+ * 5. calculatePreviewPlacement
+ * 6. selectPreviewRect
+ * 7. selectSide
+ * 8. clamp
+ */
 
 export interface PreviewRect {
     bottom: number;

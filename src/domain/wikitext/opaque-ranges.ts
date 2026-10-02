@@ -1,4 +1,15 @@
-/** Opaque source ranges used by shared wikitext operations. */
+/**
+ * @file src/domain/wikitext/opaque-ranges.ts
+ * Purpose: Opaque source ranges used by shared wikitext operations.
+ *
+ * Table of contents:
+ * 1. Imports
+ * 2. SourceRange
+ * 3. WikitextOptions
+ * 4. findOpaqueRanges
+ * 5. isOffsetInRanges
+ * 6. mergeRanges
+ */
 
 import { findWikitextComments } from "./comments.ts";
 import { DEFAULT_LITERAL_TAGS, findWikitextTags } from "./tags.ts";

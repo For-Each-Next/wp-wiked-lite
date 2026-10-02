@@ -1,4 +1,24 @@
-/** Generic HTML-like and MediaWiki extension-tag queries. */
+/**
+ * @file src/domain/wikitext/tags.ts
+ * Purpose: Generic HTML-like and MediaWiki extension-tag queries.
+ *
+ * Table of contents:
+ * 1. Imports
+ * 2. Constants and state
+ * 3. WikitextTagOptions
+ * 4. WikitextTag
+ * 5. TagToken
+ * 6. TagRangeDetails
+ * 7. findWikitextTags
+ * 8. parseTagAttributes
+ * 9. readTagToken
+ * 10. findTagTokenEnd
+ * 11. findClosingTagToken
+ * 12. closeStackTag
+ * 13. buildTag
+ * 14. addTag
+ * 15. normalizeTagSet
+ */
 
 import { findWikitextComments } from "./comments.ts";
 

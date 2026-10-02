@@ -1,4 +1,34 @@
-/** Pure wikitext target collection and confirmed redirect rewriting. */
+/**
+ * @file src/domain/wiki-links.ts
+ * Purpose: Pure wikitext target collection and confirmed redirect rewriting.
+ *
+ * Table of contents:
+ * 1. Imports
+ * 2. WikiLinkLookup
+ * 3. collectWikiLinkTitles
+ * 4. collectTemplateTitles
+ * 5. applyWikiLinkRedirects
+ * 6. applyTemplateRedirects
+ * 7. TemplateRedirectCandidate
+ * 8. getTemplateRedirectCandidates
+ * 9. getTemplateRedirectCandidate
+ * 10. parseTemplateTarget
+ * 11. createBareTemplateTarget
+ * 12. isStaticTemplateTitle
+ * 13. createTemplateReplacement
+ * 14. parseRedirectTemplateTitle
+ * 15. rewriteWikiLinks
+ * 16. WikiLinkRewriteContext
+ * 17. WikiLinkTarget
+ * 18. WikiLinkEmbedding
+ * 19. rewriteWikiLink
+ * 20. getWikiLinkEmbedding
+ * 21. parseWikiLinkTarget
+ * 22. getEmbeddedLinkNamespaceId
+ * 23. getEmbeddedNamespaceId
+ * 24. stripTitleFragment
+ * 25. getTitleFragment
+ */
 
 import {
     formatNamespaceTitle,

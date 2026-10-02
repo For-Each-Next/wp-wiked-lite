@@ -1,4 +1,13 @@
-/** Read-only MediaWiki revision source access for section previews. */
+/**
+ * @file src/platform/mediawiki/page-source.ts
+ * Purpose: Read-only MediaWiki revision source access for section previews.
+ *
+ * Table of contents:
+ * 1. PageSourceApi
+ * 2. loadPageRevisionSource
+ * 3. getRevisionContent
+ * 4. asRecord
+ */
 
 export interface PageSourceApi {
     get(parameters: Record<string, unknown>): PromiseLike<unknown>;

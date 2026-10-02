@@ -1,4 +1,11 @@
-/** Localized wikEd Lite messages. */
+/**
+ * @file src/i18n/index.ts
+ * Purpose: Localized wikEd Lite messages.
+ *
+ * Table of contents:
+ * 1. Imports
+ * 2. Constants and state
+ */
 
 import en from "./en.json" with { type: "json" };
 import zhHans from "./zh-Hans.json" with { type: "json" };

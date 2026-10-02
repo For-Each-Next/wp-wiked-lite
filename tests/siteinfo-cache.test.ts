@@ -1,3 +1,13 @@
+/**
+ * @file tests/siteinfo-cache.test.ts
+ * Purpose: tests / siteinfo cache.test module.
+ *
+ * Table of contents:
+ * 1. Imports
+ * 2. Test scenarios
+ * 3. memoryStorage
+ */
+
 import assert from "node:assert/strict";
 import test from "node:test";
 import {

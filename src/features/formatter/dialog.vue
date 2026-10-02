@@ -1,3 +1,11 @@
+<!--
+@file src/features/formatter/dialog.vue
+Purpose: src / features / formatter / dialog module.
+
+Table of contents:
+1. Template
+-->
+
 <template>
     <cdx-dialog
         v-model:open="open"

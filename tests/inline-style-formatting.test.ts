@@ -1,3 +1,12 @@
+/**
+ * @file tests/inline-style-formatting.test.ts
+ * Purpose: tests / inline style formatting.test module.
+ *
+ * Table of contents:
+ * 1. Imports
+ * 2. Test scenarios
+ */
+
 import assert from "node:assert/strict";
 import test from "node:test";
 import { normalizeInlineStyle } from "../src/domain/inline-style-formatting.ts";

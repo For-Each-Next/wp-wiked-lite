@@ -26,6 +26,15 @@ local verification.
 | Wording               | Short sentence-case labels, explicit units, descriptive actions, complete translated sentences, and error messages that explain how to continue.                                                              | [Writing for copy](https://doc.wikimedia.org/codex/latest/style-guide/writing-for-copy.html), [Voice and tone](https://doc.wikimedia.org/codex/latest/style-guide/voice-and-tone.html)    |
 | Accessibility         | Codex manages modal focus, tab keyboard navigation, control labels, and focus indicators. Errors and progress use accessible feedback components. Logical spacing supports RTL; example wikitext remains LTR. | [Accessibility](https://doc.wikimedia.org/codex/latest/style-guide/accessibility.html), [Bidirectionality](https://doc.wikimedia.org/codex/latest/style-guide/bidirectionality.html)      |
 
+<!-- toc:start -->
+
+## Contents
+
+- [Interaction contract](#interaction-contract)
+- [Verification](#verification)
+
+<!-- toc:end -->
+
 ## Interaction contract
 
 ![Formatting panel](images/screenshot-03.png)

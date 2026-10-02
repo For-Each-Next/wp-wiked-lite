@@ -1,3 +1,13 @@
+/**
+ * @file tests/editor-links.test.ts
+ * Purpose: tests / editor links.test module.
+ *
+ * Table of contents:
+ * 1. Imports
+ * 2. Test scenarios
+ * 3. createNavigationHarness
+ */
+
 import assert from "node:assert/strict";
 import test, { type TestContext } from "node:test";
 

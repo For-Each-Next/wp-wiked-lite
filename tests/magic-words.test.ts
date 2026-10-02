@@ -1,3 +1,15 @@
+/**
+ * @file tests/magic-words.test.ts
+ * Purpose: tests / magic words.test module.
+ *
+ * Table of contents:
+ * 1. Imports
+ * 2. aliases
+ * 3. Constants and state
+ * 4. classify
+ * 5. Test scenarios
+ */
+
 import assert from "node:assert/strict";
 import test from "node:test";
 import {

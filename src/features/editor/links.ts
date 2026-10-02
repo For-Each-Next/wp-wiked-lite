@@ -1,4 +1,18 @@
-/** Separates modified link clicks from editor selection gestures. */
+/**
+ * @file src/features/editor/links.ts
+ * Purpose: Separates modified link clicks from editor selection gestures.
+ *
+ * Table of contents:
+ * 1. Imports
+ * 2. Constants and state
+ * 3. LinkNavigationController
+ * 4. handleSourceLinkClick
+ * 5. attachModifiedLinkNavigation
+ * 6. isModifiedClick
+ * 7. hasSelection
+ * 8. exceedsClickMovement
+ * 9. getLink
+ */
 
 import { eventElement } from "./dom.ts";
 

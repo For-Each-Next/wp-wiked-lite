@@ -1,4 +1,15 @@
-/** Content-model policy for choosing the source editing surface. */
+/**
+ * @file src/domain/editor-selection.ts
+ * Purpose: Content-model policy for choosing the source editing surface.
+ *
+ * Table of contents:
+ * 1. CodeMirrorMode
+ * 2. SourceEditorSelection
+ * 3. Constants and state
+ * 4. selectSourceEditor
+ * 5. normalizeCodeMirrorMode
+ * 6. getContentModelMode
+ */
 
 export type CodeMirrorMode = "css" | "javascript" | "json" | "lua" | "vue";
 

@@ -1,4 +1,29 @@
-/** Balanced template queries, local parsing, and serialization. */
+/**
+ * @file src/domain/wikitext/templates.ts
+ * Purpose: Balanced template queries, local parsing, and serialization.
+ *
+ * Table of contents:
+ * 1. Imports
+ * 2. ParsedTemplateCall
+ * 3. ParsedTemplateParameter
+ * 4. TopLevelRange
+ * 5. TemplateRange
+ * 6. NestingState
+ * 7. Constants and state
+ * 8. findTemplateRanges
+ * 9. findTemplateCalls
+ * 10. splitTopLevel
+ * 11. splitTopLevelRanges
+ * 12. findSeparatorProtectedRanges
+ * 13. isCompleteExtensionTag
+ * 14. hasStrictOpeningTag
+ * 15. mergeSourceRanges
+ * 16. findTopLevelEquals
+ * 17. normalizeTemplateName
+ * 18. parseTemplateCall
+ * 19. updateNesting
+ * 20. skipBalancedParameter
+ */
 
 import {
     findOpaqueRanges,

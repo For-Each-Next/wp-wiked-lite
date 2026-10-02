@@ -1,3 +1,20 @@
+/**
+ * @file tests/ui/formatter.spec.ts
+ * Purpose: tests / ui / formatter.spec module.
+ *
+ * Table of contents:
+ * 1. Imports
+ * 2. NativeNotification
+ * 3. Constants and state
+ * 4. Test scenarios
+ * 5. chooseMore
+ * 6. capture
+ * 7. storedSettings
+ * 8. nativeNotifications
+ * 9. expectSuccessNotification
+ * 10. mountFormatter
+ */
+
 import { mkdir, readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 
@@ -52,7 +69,7 @@ test.describe("documentation screenshots", () => {
     }) => {
         await page.emulateMedia({ reducedMotion: "reduce" });
         const source = await readFile(
-            `${projectRoot}tests/fixtures/documentation.wikitext`,
+            `${projectRoot}tests/fixtures/bang-dream.wikitext`,
             "utf8",
         );
         await mountFormatter(page, {
@@ -68,7 +85,7 @@ test.describe("documentation screenshots", () => {
         });
         await page.addStyleTag({
             content:
-                "#editform::before { content: '编辑示例'; display: block; font-size: 28px; margin-bottom: 12px; } .wiked-lite-frame { width: 100%; height: 600px; }",
+                "#editform::before { content: 'BanG Dream! 少女樂團派對 · 编辑源代码'; display: block; font-size: 28px; margin-bottom: 12px; } .wiked-lite-frame { width: 100%; height: 600px; }",
         });
         await page.locator(".wiked-lite-frame").evaluate((element) => {
             (element as HTMLIFrameElement).style.height = "600px";
@@ -98,13 +115,12 @@ test.describe("documentation screenshots", () => {
             await route.fulfill({
                 contentType: "application/json",
                 body: JSON.stringify({
-                    title: "Example article",
-                    description: "离线页面预览示例",
-                    extract:
-                        "此摘要用于演示跨语言模板中的页面预览。源代码保持不变，所有响应均由本地测试提供。",
+                    title: "任天堂Switch",
+                    description: "电子游戏机 · 离线预览",
+                    extract: "任天堂推出的游戏机。此摘要由本地截图场景提供。",
                     content_urls: {
                         desktop: {
-                            page: "https://en.wikipedia.org/wiki/Example_article",
+                            page: "https://zh.wikipedia.org/wiki/任天堂Switch",
                         },
                     },
                 }),
@@ -120,7 +136,10 @@ test.describe("documentation screenshots", () => {
             animations: "disabled",
         });
         await page.mouse.move(0, 0);
-        await frame.locator('[data-page-preview-wiki="en"]').first().hover();
+        await frame
+            .locator('[data-page-preview-title="任天堂Switch"]')
+            .first()
+            .hover();
         await expect(frame.locator(".wiked-lite-page-preview")).toBeVisible();
         await page.screenshot({
             path: `${imageDir}/screenshot-02.png`,

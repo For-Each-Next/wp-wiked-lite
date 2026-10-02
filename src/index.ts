@@ -1,4 +1,10 @@
-/** Side-effect-free public wikEd Lite operations. */
+/**
+ * @file src/index.ts
+ * Purpose: Side-effect-free public wikEd Lite operations.
+ *
+ * Table of contents:
+ * 1. Exports
+ */
 
 export { formatWikitext } from "./domain/formatter.ts";
 export { highlightWikitext } from "./domain/highlighter.ts";

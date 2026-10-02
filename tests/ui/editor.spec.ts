@@ -1,3 +1,24 @@
+/**
+ * @file tests/ui/editor.spec.ts
+ * Purpose: tests / ui / editor.spec module.
+ *
+ * Table of contents:
+ * 1. Imports
+ * 2. Constants and state
+ * 3. Test scenarios
+ * 4. assertEditorMirrors
+ * 5. mountLightweightEditor
+ * 6. expectTooltipIcon
+ * 7. expectTooltipTextarea
+ * 8. expectTooltipInlineSource
+ * 9. openedLinks
+ * 10. installPageExistenceFixture
+ * 11. setCaretAtTokenEdge
+ * 12. getCaretSourceOffset
+ * 13. mountEditor
+ * 14. installMediaWikiFixture
+ */
+
 import { readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 
@@ -14,6 +35,156 @@ const userscriptArtifact = fileURLToPath(
     new URL("../../dist/wiked_lite.user.js", import.meta.url),
 );
 const initialSource = "== Heading ==\nA [[Link]]";
+
+test("independent edit tools share selection, history, source and teardown", async ({
+    page,
+}) => {
+    await mountEditor(page, "Before selected after");
+    const frame = page.frameLocator(".wiked-lite-frame");
+    const editor = frame.locator(".wiked-lite-editor");
+    await editor.focus();
+    await editor.evaluate((element) => {
+        const walker = element.ownerDocument.createTreeWalker(
+            element,
+            NodeFilter.SHOW_TEXT,
+        );
+        const range = element.ownerDocument.createRange();
+        let offset = 0;
+        let node: Node | null;
+        while ((node = walker.nextNode())) {
+            const end = offset + (node.textContent?.length ?? 0);
+            if (offset <= 7 && end >= 7) range.setStart(node, 7 - offset);
+            if (offset <= 15 && end >= 15) {
+                range.setEnd(node, 15 - offset);
+                break;
+            }
+            offset = end;
+        }
+        const selection = element.ownerDocument.getSelection();
+        selection?.removeAllRanges();
+        selection?.addRange(range);
+    });
+    await page.evaluate(() => {
+        const textarea = document.querySelector(
+            "#wpTextbox1",
+        ) as HTMLTextAreaElement;
+        const backend = (textarea as any)[
+            Symbol.for("mediawiki-gadgets.edit-box-backend")
+        ];
+        backend.replaceSelection("citation");
+        backend.focus();
+    });
+    await expect(editor).toHaveText("Before citation after");
+    await expect(page.locator("#wpTextbox1")).toHaveValue(
+        "Before citation after",
+    );
+    await page.keyboard.press("ControlOrMeta+z");
+    await expect(editor).toHaveText("Before selected after");
+    await page.keyboard.press("ControlOrMeta+Shift+z");
+    await expect(editor).toHaveText("Before citation after");
+    expect(await getCaretSourceOffset(editor)).toBe(15);
+    expect(
+        await editor.evaluate(
+            (element) => element.ownerDocument.getSelection()?.isCollapsed,
+        ),
+    ).toBe(true);
+    await page.evaluate(() => {
+        const textarea = document.querySelector(
+            "#wpTextbox1",
+        ) as HTMLTextAreaElement;
+        const backend = (textarea as any)[
+            Symbol.for("mediawiki-gadgets.edit-box-backend")
+        ];
+        backend.writePreservingPosition("Changed source");
+        if (backend.read() !== textarea.value)
+            throw new Error("Source is not synchronized");
+    });
+    await expect(editor).toHaveText("Changed source");
+    await page
+        .locator(".wiked-lite-frame")
+        .evaluate((element) => element.remove());
+    await expect
+        .poll(() =>
+            page.evaluate(() => {
+                const textarea = document.querySelector(
+                    "#wpTextbox1",
+                ) as HTMLTextAreaElement;
+                return (
+                    (textarea as any)[
+                        Symbol.for("mediawiki-gadgets.edit-box-backend")
+                    ] === undefined
+                );
+            }),
+        )
+        .toBe(true);
+    await expect(page.locator("#wpTextbox1")).toHaveValue("Changed source");
+});
+
+test("editor backend preserves the visible scrolling surface", async ({
+    page,
+}) => {
+    const source = Array.from(
+        { length: 180 },
+        (_, index) => "Line " + index + " ".repeat(10),
+    ).join("\n");
+    await mountEditor(page, source);
+    const editor = page
+        .frameLocator(".wiked-lite-frame")
+        .locator(".wiked-lite-editor");
+    await editor.evaluate((element) => {
+        element.scrollTop = 450;
+    });
+    const top = await editor.evaluate((element) => element.scrollTop);
+    expect(top).toBeGreaterThan(0);
+    await page.evaluate(() => {
+        const textarea = document.querySelector(
+            "#wpTextbox1",
+        ) as HTMLTextAreaElement;
+        const backend = (textarea as any)[
+            Symbol.for("mediawiki-gadgets.edit-box-backend")
+        ];
+        backend.writePreservingPosition(
+            textarea.value.replace("Line 1", "Edited 1"),
+        );
+    });
+    expect(await editor.evaluate((element) => element.scrollTop)).toBe(top);
+    await expect(page.locator("#wpTextbox1")).toHaveValue(
+        source.replace("Line 1", "Edited 1"),
+    );
+});
+
+test("editor actions preserve an active IME composition", async ({ page }) => {
+    await mountEditor(page, "Original");
+    const editor = page
+        .frameLocator(".wiked-lite-frame")
+        .locator(".wiked-lite-editor");
+    await editor.dispatchEvent("compositionstart");
+    const result = await page.evaluate(() => {
+        const textarea = document.querySelector(
+            "#wpTextbox1",
+        ) as HTMLTextAreaElement;
+        const backend = (textarea as any)[
+            Symbol.for("mediawiki-gadgets.edit-box-backend")
+        ];
+        const errors: string[] = [];
+        for (const operation of [
+            () => backend.write("replacement"),
+            () => backend.replaceSelection("citation"),
+        ]) {
+            try {
+                operation();
+            } catch (error) {
+                errors.push((error as Error).message);
+            }
+        }
+        return { errors, source: textarea.value };
+    });
+    expect(result.source).toBe("Original");
+    expect(result.errors).toHaveLength(2);
+    await editor.dispatchEvent("compositionend");
+    await expect(editor).toHaveText("Original");
+    await expect(page.locator("#wpTextbox1")).toHaveValue("Original");
+});
 
 for (const [name, artifact] of [
     ["gadget", gadgetArtifact],

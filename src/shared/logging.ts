@@ -1,4 +1,35 @@
-/** Structured, privacy-conscious console logging for wikEd Lite. */
+/**
+ * @file src/shared/logging.ts
+ * Purpose: Structured, privacy-conscious console logging for wikEd Lite.
+ *
+ * Table of contents:
+ * 1. LogLevel
+ * 2. ActiveLogLevel
+ * 3. LogDetails
+ * 4. StopTimer
+ * 5. Logger
+ * 6. LogOutput
+ * 7. LoggerOptions
+ * 8. LoggerState
+ * 9. Constants and state
+ * 10. createLogger
+ * 11. createScopedLogger
+ * 12. createTimer
+ * 13. emit
+ * 14. isLogLevel
+ * 15. isLevelEnabled
+ * 16. buildPrefix
+ * 17. normalizeIdentifier
+ * 18. normalizeEvent
+ * 19. sanitize
+ * 20. sanitizeValue
+ * 21. isPrivateKey
+ * 22. sanitizeString
+ * 23. sanitizeError
+ * 24. sanitizeObject
+ * 25. sanitizeArray
+ * 26. sanitizeRecord
+ */
 
 export type LogLevel = "silent" | "error" | "warn" | "info" | "debug";
 

@@ -1,4 +1,29 @@
-/** Resolves {{sfn}} calls to matching bibliography citations. */
+/**
+ * @file src/domain/short-footnotes.ts
+ * Purpose: Resolves {{sfn}} calls to matching bibliography citations.
+ *
+ * Table of contents:
+ * 1. Imports
+ * 2. TemplateNameNormalizer
+ * 3. Constants and state
+ * 4. TemplateCall
+ * 5. TemplateDescriptor
+ * 6. CitationCandidate
+ * 7. ShortFootnoteUse
+ * 8. findShortFootnoteCitation
+ * 9. buildShortFootnoteUse
+ * 10. buildCitationCandidate
+ * 11. getCitationAuthors
+ * 12. isCitationAuthorParameter
+ * 13. getCitationYear
+ * 14. matchesCitation
+ * 15. getYear
+ * 16. cleanDisplayValue
+ * 17. normalizeValue
+ * 18. findTemplateCalls
+ * 19. createTemplateDescriptor
+ * 20. normalizeName
+ */
 
 import { type ParsedTemplateCall, wikitext } from "./wikitext/index.ts";
 

@@ -1,4 +1,18 @@
-/** Conservative whitespace normalization for inline CSS declaration lists. */
+/**
+ * @file src/domain/inline-style-formatting.ts
+ * Purpose: Conservative whitespace normalization for inline CSS declaration lists.
+ *
+ * Table of contents:
+ * 1. Declaration
+ * 2. Constants and state
+ * 3. normalizeInlineStyle
+ * 4. scanDeclarations
+ * 5. skipQuotedValue
+ * 6. normalizeDeclaration
+ * 7. skipTrivia
+ * 8. trimWhitespace
+ * 9. trimValueWhitespace
+ */
 
 interface Declaration {
     colon: number;

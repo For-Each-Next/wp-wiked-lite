@@ -1,4 +1,11 @@
-/** Site syntax required to highlight and safely transform wikitext. */
+/**
+ * @file src/domain/wiki-site.ts
+ * Purpose: Site syntax required to highlight and safely transform wikitext.
+ *
+ * Table of contents:
+ * 1. Imports
+ * 2. WikiNamespaceState
+ */
 
 import type { NamespaceSource } from "./wiki-titles.ts";
 import type { ImageOptionCatalog } from "./highlighter.ts";

@@ -1,3 +1,13 @@
+/**
+ * @file tests/logging.test.ts
+ * Purpose: tests / logging.test module.
+ *
+ * Table of contents:
+ * 1. Imports
+ * 2. Test scenarios
+ * 3. output
+ */
+
 import assert from "node:assert/strict";
 import test from "node:test";
 

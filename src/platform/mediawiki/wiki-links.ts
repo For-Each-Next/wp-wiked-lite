@@ -1,4 +1,24 @@
-/** MediaWiki redirect and missing-page lookup, batched to API limits. */
+/**
+ * @file src/platform/mediawiki/wiki-links.ts
+ * Purpose: MediaWiki redirect and missing-page lookup, batched to API limits.
+ *
+ * Table of contents:
+ * 1. Imports
+ * 2. WikiLinkApi
+ * 3. QueryPage
+ * 4. QueryTitleMapping
+ * 5. QueryResponse
+ * 6. LookupMergeContext
+ * 7. lookupWikiLinks
+ * 8. mergeLookup
+ * 9. mergeRequestedTitle
+ * 10. buildTitleMap
+ * 11. buildRedirectMap
+ * 12. resolveTitleAlias
+ * 13. appendTitleFragment
+ * 14. stripTitleFragment
+ * 15. getTitleFragment
+ */
 
 import type { WikiLinkLookup } from "../../domain/wiki-links.ts";
 import { normalizeWikitextTitleKey } from "../../domain/wiki-titles.ts";

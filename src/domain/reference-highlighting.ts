@@ -1,4 +1,26 @@
-/** Reference highlighting, relative template nesting, and inline citation colors. */
+/**
+ * @file src/domain/reference-highlighting.ts
+ * Purpose: Reference highlighting, relative template nesting, and inline citation colors.
+ *
+ * Table of contents:
+ * 1. Imports
+ * 2. ReferenceHighlighting
+ * 3. ReferenceNestingContext
+ * 4. ReferenceColorUnit
+ * 5. TemplateNestingRegion
+ * 6. Constants and state
+ * 7. createReferenceHighlighting
+ * 8. createReferenceTemplateDecoration
+ * 9. createReferenceNestingContext
+ * 10. getReferenceTemplateRegions
+ * 11. createReferenceNestingDecorations
+ * 12. createReferenceDecorations
+ * 13. containsRange
+ * 14. createAlternateReferenceDecorations
+ * 15. getEffectiveTemplateDepth
+ * 16. clipOuterTemplateDecorations
+ * 17. subtractDecoratedRanges
+ */
 
 import {
     type HighlightRange as DecoratedRange,

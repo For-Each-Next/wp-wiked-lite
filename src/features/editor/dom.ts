@@ -1,4 +1,21 @@
-/** Source text and selection operations for the editable DOM. */
+/**
+ * @file src/features/editor/dom.ts
+ * Purpose: Source text and selection operations for the editable DOM.
+ *
+ * Table of contents:
+ * 1. Imports
+ * 2. eventElement
+ * 3. readEditableText
+ * 4. readNodeText
+ * 5. isEditableLine
+ * 6. getSelectionOffsets
+ * 7. createEditorSnapshot
+ * 8. measureOffset
+ * 9. setSelectionOffsets
+ * 10. findTextPoint
+ * 11. collectTextNodes
+ * 12. restoreAttribute
+ */
 
 import type { EditorSnapshot } from "./history.ts";
 
